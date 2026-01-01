@@ -1,0 +1,31 @@
+.post-job {
+  max-width: 400px;
+  margin: 60px auto;
+  padding: 30px;
+  box-shadow: 0 0 15px #ddd;
+  border-radius: 8px;
+}
+
+.post-job h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.post-job input,
+.post-job textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.post-job button {
+  width: 100%;
+  padding: 10px;
+  background: #1f6fd2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

@@ -1,0 +1,33 @@
+.application-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 25px;
+  background: white;
+  box-shadow: 0 0 10px #ddd;
+  border-radius: 8px;
+}
+
+.application-form input,
+.application-form select,
+.application-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+}
+
+.application-form button {
+  background: #2563eb;
+  color: white;
+  padding: 10px;
+  border: none;
+  width: 100%;
+}
+
+.success-msg {
+  color: green;
+  margin-bottom: 10px;
+}
+.error-msg {
+  color: red;
+  margin-bottom: 10px;
+}
