@@ -15,7 +15,7 @@ import com.jobportal.jobportal_backend.repository.JobRepository;
 
 @RestController
 @RequestMapping("/api/jobs")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class JobController {
 
     @Autowired
