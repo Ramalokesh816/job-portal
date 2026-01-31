@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { setUser } from "../services/auth";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../firebase";
 import "./Auth.css";
 
 function Login({ setUser: setAppUser }) {
@@ -9,11 +11,12 @@ function Login({ setUser: setAppUser }) {
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
-  const [showPopup, setShowPopup] = useState(false);
 
   const navigate = useNavigate();
 
-  // Login with Email & Password
+
+  /* ================= EMAIL LOGIN ================= */
+
   const submit = (e) => {
     e.preventDefault();
 
@@ -31,13 +34,11 @@ function Login({ setUser: setAppUser }) {
       return;
     }
 
-    // Check password
     if (foundUser.password !== password) {
       setError("Wrong password ❌");
       return;
     }
 
-    // Clear error
     setError("");
 
     const user = {
@@ -46,59 +47,59 @@ function Login({ setUser: setAppUser }) {
     };
 
     // Save login
-    setUser(user);       // localStorage
-    setAppUser(user);    // React state
+    setUser(user);
+    setAppUser(user);
 
-    // Go to Profile
     navigate("/profile");
   };
 
-  // Fake Google Login
-  const googleLogin = () => {
-    setShowPopup(true);
+
+  /* ================= GOOGLE LOGIN ================= */
+
+  const googleLogin = async () => {
+    try {
+
+      const result = await signInWithPopup(auth, googleProvider);
+
+      const user = {
+        name: result.user.displayName,
+        email: result.user.email
+      };
+
+      // Save user
+      setUser(user);
+      setAppUser(user);
+
+      navigate("/profile");
+
+    } catch (err) {
+
+      console.log("Google Login Error:", err);
+      setError("Google login failed ❌");
+
+    }
   };
 
-  // Fake Facebook Login
-  const facebookLogin = () => {
-    setShowPopup(true);
-  };
 
   return (
     <div className="login-page">
 
-      {/* ERROR POPUP (Google/Facebook) */}
-      {showPopup && (
-        <div className="popup-bg">
-
-          <div className="popup-box">
-
-            <h3>localhost:3000 says</h3>
-
-            <p>Google login failed ❌</p>
-
-            <button onClick={() => setShowPopup(false)}>
-              OK
-            </button>
-
-          </div>
-
-        </div>
-      )}
-
       <div className="login-box">
+
 
         {/* LEFT PANEL */}
         <div className="login-left">
 
           <h2>Sign in</h2>
 
-          {/* CREATE ACCOUNT */}
+          {/* REGISTER LINK */}
           <p>
             Don’t have an account?
             <span onClick={() => navigate("/register")}>
               {" "}Create now
             </span>
           </p>
+
 
           {/* LOGIN FORM */}
           <form onSubmit={submit}>
@@ -123,13 +124,16 @@ function Login({ setUser: setAppUser }) {
               }
             />
 
+
             {/* ERROR MESSAGE */}
             {error && (
-              <p style={{
-                color: "red",
-                fontSize: "13px",
-                marginTop: "5px"
-              }}>
+              <p
+                style={{
+                  color: "red",
+                  fontSize: "13px",
+                  marginTop: "5px"
+                }}
+              >
                 {error}
               </p>
             )}
@@ -140,7 +144,8 @@ function Login({ setUser: setAppUser }) {
 
           </form>
 
-          {/* SOCIAL LOGIN */}
+
+          {/* GOOGLE LOGIN */}
           <div className="social-login">
 
             <button
@@ -149,14 +154,6 @@ function Login({ setUser: setAppUser }) {
               onClick={googleLogin}
             >
               Continue with Google
-            </button>
-
-            <button
-              className="facebook"
-              type="button"
-              onClick={facebookLogin}
-            >
-              Continue with Facebook
             </button>
 
           </div>
