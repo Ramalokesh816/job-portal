@@ -1,5 +1,5 @@
-import {Routes, Route } from "react-router-dom";
-import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 import Header from "./components/Header";
 import Home from "./components/Home";
@@ -8,31 +8,57 @@ import Register from "./components/Register";
 import Profile from "./components/Profile";
 import Jobs from "./components/Jobs";
 import Employers from "./components/Employers";
-import PostJob from "./components/PostJob"; 
+import PostJob from "./components/PostJob";
 import Apply from "./components/ApplyJob";
 
-<Route path="/apply" element={<Apply />} />
-
-
 function App() {
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user"))
-  );
+
+  const [user, setUser] = useState(null);
+
+  // Load user after refresh
+  useEffect(() => {
+
+    const savedUser = localStorage.getItem("user");
+
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    } else {
+      setUser(null);
+    }
+
+  }, []);
 
   return (
     <>
-      <Header user={user} />
+
+      <Header user={user} setUser={setUser} />
 
       <Routes>
+
         <Route path="/" element={<Home user={user} />} />
-        <Route path="/login" element={<Login setUser={setUser} />} />
+
+        <Route
+          path="/login"
+          element={<Login setUser={setUser} />}
+        />
+
         <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile setUser={setUser} />} />
+
+        <Route
+          path="/profile"
+          element={<Profile setUser={setUser} />}
+        />
+
         <Route path="/jobs" element={<Jobs />} />
+
         <Route path="/employers" element={<Employers />} />
+
         <Route path="/postjob" element={<PostJob />} />
+
         <Route path="/apply" element={<Apply />} />
+
       </Routes>
+
     </>
   );
 }

@@ -1,5 +1,7 @@
 package com.jobportal.jobportal_backend.model;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -8,25 +10,73 @@ public class Application {
 
     @Id
     private String id;
-    private String jobId;
+
+    private String fullName;
+    private String experience;
+    private String skills;
+
     private String jobTitle;
-    private String applicantName;
-    private String applicantEmail;
+    private String userEmail;
+
+    private Date appliedAt;
 
     public Application() {}
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    // Getters & Setters
 
-    public String getJobId() { return jobId; }
-    public void setJobId(String jobId) { this.jobId = jobId; }
+    public String getId() {
+        return id;
+    }
 
-    public String getJobTitle() { return jobTitle; }
-    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public String getApplicantName() { return applicantName; }
-    public void setApplicantName(String applicantName) { this.applicantName = applicantName; }
+    public String getFullName() {
+        return fullName;
+    }
 
-    public String getApplicantEmail() { return applicantEmail; }
-    public void setApplicantEmail(String applicantEmail) { this.applicantEmail = applicantEmail; }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getExperience() {
+        return experience;
+    }
+
+    public void setExperience(String experience) {
+        this.experience = experience;
+    }
+
+    public String getSkills() {
+        return skills;
+    }
+
+    public void setSkills(String skills) {
+        this.skills = skills;
+    }
+
+    public String getJobTitle() {
+        return jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    public Date getAppliedAt() {
+        return appliedAt;
+    }
+
+    public void setAppliedAt(Date appliedAt) {
+        this.appliedAt = appliedAt;
+    }
 }

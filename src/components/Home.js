@@ -5,7 +5,6 @@ import employer from "../assets/employer.png";
 import admin from "../assets/admin.png";
 import { useNavigate } from "react-router-dom";
 
-
 function Home() {
   const navigate = useNavigate();
 

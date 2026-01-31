@@ -3,171 +3,337 @@ import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import "./Profile.css";
 
-function Profile({ setUser }) {
+function Profile() {
+
   const navigate = useNavigate();
+
+  // Get logged-in user
   const storedUser = JSON.parse(localStorage.getItem("user"));
 
+  // Tabs
   const [activeTab, setActiveTab] = useState("applications");
-  const [applications, setApplications] = useState([]);
 
-  // 🔹 PROFILE IMAGE (PERSISTENT)
+  // Applications
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Edit mode
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Profile photo
   const [photo, setPhoto] = useState(
     localStorage.getItem("profilePhoto") ||
     "https://cdn-icons-png.flaticon.com/512/847/847969.png"
   );
 
-  // 🔹 USER DETAILS
+  // User details
   const [details, setDetails] = useState({
     fullName: storedUser?.fullName || "",
     email: storedUser?.email || "",
-    phone: storedUser?.phone || "",
+    phone: storedUser?.phone || ""
   });
 
-  // 🔹 EDIT FLAGS
-  const [editName, setEditName] = useState(false);
-  const [editEmail, setEditEmail] = useState(false);
-  const [editPhone, setEditPhone] = useState(false);
 
-  // 🔹 FETCH APPLICATIONS (FIXED)
+  /* ================= CHECK LOGIN ================= */
+
   useEffect(() => {
-    API.get("/api/applications")
-      .then((res) => {
-        const filtered = res.data.filter(
-          (app) => app.userEmail === storedUser.email
-        );
-        setApplications(filtered);
-      })
-      .catch(() => setApplications([]));
-  }, [storedUser.email]);
+    if (!storedUser || !storedUser.email) {
+      navigate("/login");
+    }
+  }, [storedUser, navigate]);
 
-  // 🔹 UPLOAD PROFILE IMAGE
+
+  /* ================= FETCH APPLICATIONS ================= */
+
+  useEffect(() => {
+
+    if (!storedUser || !storedUser.email) {
+      setLoading(false);
+      return;
+    }
+
+    API.get(`/api/applications/user/${storedUser.email}`)
+      .then((res) => {
+        setApplications(res.data);
+      })
+      .catch((err) => {
+        console.log("Fetch error:", err);
+        setApplications([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+
+  }, [storedUser]);
+
+
+  /* ================= UPLOAD PHOTO ================= */
+
   const handlePhotoChange = (e) => {
+
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
+
     reader.onloadend = () => {
       localStorage.setItem("profilePhoto", reader.result);
       setPhoto(reader.result);
     };
+
     reader.readAsDataURL(file);
   };
 
-  // 🔹 UPDATE DETAILS
-  const updateDetails = () => {
+
+  /* ================= SAVE DETAILS ================= */
+
+  const saveDetails = () => {
+
     localStorage.setItem("user", JSON.stringify(details));
-    setUser(details);
 
-    setEditName(false);
-    setEditEmail(false);
-    setEditPhone(false);
+    setIsEditing(false);
 
-    alert("Profile updated successfully");
+    alert("Profile updated successfully ✅");
   };
 
-  // 🔹 LOGOUT (DATA NOT DELETED)
+
+  /* ================= LOGOUT ================= */
+
   const logout = () => {
-    setUser(null);
-    navigate("/");
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("profilePhoto");
+
+    navigate("/login");
   };
+
+
+  /* ================= DELETE APPLICATION ================= */
+
+  const deleteApplication = async (id) => {
+
+    if (!window.confirm("Cancel this application?")) return;
+
+    try {
+
+      await API.delete(`/api/applications/${id}`);
+
+      setApplications(
+        applications.filter(app => app.id !== id)
+      );
+
+      alert("Application cancelled ❌");
+
+    } catch (err) {
+
+      console.log(err);
+      alert("Failed to cancel");
+
+    }
+  };
+
 
   return (
     <div className="profile-layout">
-      {/* LEFT MENU */}
+
+
+      {/* ========== LEFT MENU ========== */}
       <div className="profile-menu">
+
         <div className="profile-header">
+
+          {/* Profile Photo */}
           <img src={photo} alt="Profile" />
-          <input type="file" onChange={handlePhotoChange} />
-          <h3>{details.fullName}</h3>
+
+          {/* Custom Upload Button */}
+          <label className="upload-btn">
+            Change Photo
+            <input
+              type="file"
+              onChange={handlePhotoChange}
+              hidden
+            />
+          </label>
+
+          {/* Email Only (No Username) */}
           <p>{details.email}</p>
+
         </div>
 
+
         <ul>
+
           <li onClick={() => navigate("/")}>Home</li>
-          <li onClick={() => setActiveTab("applications")}>My Applications</li>
-          <li onClick={() => setActiveTab("details")}>My Details</li>
-          <li className="logout" onClick={logout}>Logout</li>
+
+          <li
+            className={activeTab === "applications" ? "active" : ""}
+            onClick={() => setActiveTab("applications")}
+          >
+            My Applications
+          </li>
+
+          <li
+            className={activeTab === "details" ? "active" : ""}
+            onClick={() => setActiveTab("details")}
+          >
+            My Details
+          </li>
+
+          <li className="logout" onClick={logout}>
+            Logout
+          </li>
+
         </ul>
+
       </div>
 
-      {/* RIGHT CONTENT */}
+
+
+      {/* ========== RIGHT CONTENT ========== */}
       <div className="profile-content">
-        {/* APPLICATIONS */}
+
+
+        {/* ========== APPLICATIONS TAB ========== */}
         {activeTab === "applications" && (
-          <>
-            <h2>My Applications</h2>
-            {applications.length === 0 ? (
-              <p>No applications submitted yet</p>
-            ) : (
-              applications.map((app, i) => (
-                <div key={i} className="app-card">
-                  <p><b>Job:</b> {app.jobTitle}</p>
-                  <p><b>Experience:</b> {app.experience}</p>
-                  <p><b>Skills:</b> {app.skills}</p>
-                  <p className="date">
-                    Applied on: {new Date(app.appliedAt).toDateString()}
-                  </p>
-                </div>
-              ))
-            )}
-          </>
-        )}
 
-        {/* MY DETAILS */}
+  <>
+    <h2>My Applications</h2>
+
+    {loading ? (
+
+      <p>Loading...</p>
+
+    ) : applications.length === 0 ? (
+
+      <p>No applications submitted yet</p>
+
+    ) : (
+
+      <div className="applications-grid">
+
+        {applications.map((app) => (
+
+          <div key={app.id} className="app-card">
+
+            <p><b>Job:</b> {app.jobTitle}</p>
+            <p><b>Experience:</b> {app.experience}</p>
+            <p><b>Skills:</b> {app.skills}</p>
+
+            <p className="date">
+              Applied on:{" "}
+              {new Date(app.appliedAt).toDateString()}
+            </p>
+
+            <button
+              className="delete-btn"
+              onClick={() => deleteApplication(app.id)}
+            >
+              Cancel Application
+            </button>
+
+          </div>
+
+        ))}
+
+      </div>
+    )}
+
+  </>
+)}
+
+
+
+        {/* ========== DETAILS TAB ========== */}
         {activeTab === "details" && (
+
           <div className="details-section">
-            <h2>My Details</h2>
 
+            <h2>
+              My Details
+
+              {!isEditing && (
+                <button
+                  className="edit-btn"
+                  onClick={() => setIsEditing(true)}
+                >
+                  ✏️ Edit
+                </button>
+              )}
+            </h2>
+
+
+            {/* Name */}
             <p>
-              <b>Name:</b> {details.fullName}
-              <span onClick={() => setEditName(true)}> ✏️</span>
+              <b>Name:</b>{" "}
+              {isEditing ? (
+                <input
+                  value={details.fullName}
+                  onChange={(e) =>
+                    setDetails({
+                      ...details,
+                      fullName: e.target.value
+                    })
+                  }
+                />
+              ) : (
+                details.fullName
+              )}
             </p>
 
+
+            {/* Email */}
             <p>
-              <b>Email:</b> {details.email}
-              <span onClick={() => setEditEmail(true)}> ✏️</span>
+              <b>Email:</b>{" "}
+              {isEditing ? (
+                <input
+                  value={details.email}
+                  onChange={(e) =>
+                    setDetails({
+                      ...details,
+                      email: e.target.value
+                    })
+                  }
+                />
+              ) : (
+                details.email
+              )}
             </p>
 
+
+            {/* Phone */}
             <p>
-              <b>Mobile:</b> {details.phone}
-              <span onClick={() => setEditPhone(true)}> ✏️</span>
+              <b>Mobile:</b>{" "}
+              {isEditing ? (
+                <input
+                  value={details.phone}
+                  onChange={(e) =>
+                    setDetails({
+                      ...details,
+                      phone: e.target.value
+                    })
+                  }
+                />
+              ) : (
+                details.phone
+              )}
             </p>
 
-            {(editName || editEmail || editPhone) && (
-              <div className="edit-form">
-                {editName && (
-                  <input
-                    value={details.fullName}
-                    onChange={(e) =>
-                      setDetails({ ...details, fullName: e.target.value })
-                    }
-                  />
-                )}
 
-                {editEmail && (
-                  <input
-                    value={details.email}
-                    onChange={(e) =>
-                      setDetails({ ...details, email: e.target.value })
-                    }
-                  />
-                )}
-
-                {editPhone && (
-                  <input
-                    value={details.phone}
-                    onChange={(e) =>
-                      setDetails({ ...details, phone: e.target.value })
-                    }
-                  />
-                )}
-
-                <button onClick={updateDetails}>Update Details</button>
-              </div>
+            {/* Save Button */}
+            {isEditing && (
+              <button
+                className="save-btn"
+                onClick={saveDetails}
+              >
+                Save Changes
+              </button>
             )}
+
           </div>
         )}
+
       </div>
+
     </div>
   );
 }
