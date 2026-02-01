@@ -1,33 +1,119 @@
-.application-container {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 25px;
-  background: white;
-  box-shadow: 0 0 10px #ddd;
-  border-radius: 8px;
+/* Page Background */
+.apply-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e70d1, #6fa8ff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
-.application-form input,
-.application-form select,
-.application-form textarea {
+
+/* Form Box */
+.apply {
+  background: white;
+  width: 420px;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+
+/* Animation */
+.animate {
+  animation: slideFade 0.7s ease-in-out;
+}
+
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* Heading */
+.apply h2 {
+  margin-bottom: 15px;
+  color: #1e70d1;
+}
+
+
+/* Requirements Box */
+.requirements {
+  background: #f3f7ff;
+  border-left: 4px solid #1e70d1;
+  padding: 12px;
+  text-align: left;
+  margin-bottom: 15px;
+  border-radius: 5px;
+}
+
+.requirements h4 {
+  margin-bottom: 6px;
+  color: #1e70d1;
+}
+
+.requirements ul {
+  padding-left: 20px;
+  font-size: 14px;
+}
+
+
+/* Inputs */
+.apply input,
+.apply textarea {
   width: 100%;
   padding: 10px;
   margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
 }
 
-.application-form button {
-  background: #2563eb;
-  color: white;
-  padding: 10px;
-  border: none;
+.apply input:focus,
+.apply textarea:focus {
+  border-color: #1e70d1;
+}
+
+
+/* Resume Upload */
+.resume-upload {
+  text-align: left;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.resume-upload label {
+  font-weight: bold;
+  color: #444;
+}
+
+.resume-upload input {
+  margin-top: 5px;
+}
+
+
+/* Button */
+.apply button {
   width: 100%;
+  background: #1e70d1;
+  color: white;
+  border: none;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.success-msg {
-  color: green;
-  margin-bottom: 10px;
-}
-.error-msg {
-  color: red;
-  margin-bottom: 10px;
+.apply button:hover {
+  background: #155bb5;
 }

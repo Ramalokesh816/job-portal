@@ -7,39 +7,68 @@ function Profile() {
 
   const navigate = useNavigate();
 
-  // Get logged-in user
-  const storedUser = JSON.parse(localStorage.getItem("user"));
 
-  // Tabs
+  /* ================= USER STATE ================= */
+
+  const [storedUser, setStoredUser] = useState(null);
+
+
+  /* ================= UI STATES ================= */
+
   const [activeTab, setActiveTab] = useState("applications");
 
-  // Applications
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Edit mode
   const [isEditing, setIsEditing] = useState(false);
 
-  // Profile photo
+
+  /* ================= PROFILE PHOTO ================= */
+
   const [photo, setPhoto] = useState(
     localStorage.getItem("profilePhoto") ||
     "https://cdn-icons-png.flaticon.com/512/847/847969.png"
   );
 
-  // User details
+
+  /* ================= USER DETAILS ================= */
+
   const [details, setDetails] = useState({
-    fullName: storedUser?.fullName || "",
-    email: storedUser?.email || "",
-    phone: storedUser?.phone || ""
+    fullName: "",
+    email: "",
+    phone: ""
   });
+
+
+  /* ================= LOAD USER ONCE ================= */
+
+  useEffect(() => {
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    setStoredUser(user);
+
+    if (user) {
+      setDetails({
+        fullName: user.fullName || "",
+        email: user.email || "",
+        phone: user.phone || ""
+      });
+    }
+
+  }, []);
 
 
   /* ================= CHECK LOGIN ================= */
 
   useEffect(() => {
-    if (!storedUser || !storedUser.email) {
+
+    if (storedUser === null) return; // wait till load
+
+    if (!storedUser?.email) {
       navigate("/login");
     }
+
   }, [storedUser, navigate]);
 
 
@@ -47,19 +76,24 @@ function Profile() {
 
   useEffect(() => {
 
-    if (!storedUser || !storedUser.email) {
+    if (!storedUser?.email) {
       setLoading(false);
       return;
     }
 
+    setLoading(true);
+
     API.get(`/api/applications/user/${storedUser.email}`)
+
       .then((res) => {
         setApplications(res.data);
       })
+
       .catch((err) => {
         console.log("Fetch error:", err);
         setApplications([]);
       })
+
       .finally(() => {
         setLoading(false);
       });
@@ -77,8 +111,10 @@ function Profile() {
     const reader = new FileReader();
 
     reader.onloadend = () => {
+
       localStorage.setItem("profilePhoto", reader.result);
       setPhoto(reader.result);
+
     };
 
     reader.readAsDataURL(file);
@@ -91,6 +127,8 @@ function Profile() {
 
     localStorage.setItem("user", JSON.stringify(details));
 
+    setStoredUser(details);
+
     setIsEditing(false);
 
     alert("Profile updated successfully ✅");
@@ -101,8 +139,7 @@ function Profile() {
 
   const logout = () => {
 
-    localStorage.removeItem("user");
-    localStorage.removeItem("profilePhoto");
+    localStorage.clear();
 
     navigate("/login");
   };
@@ -118,19 +155,26 @@ function Profile() {
 
       await API.delete(`/api/applications/${id}`);
 
-      setApplications(
-        applications.filter(app => app.id !== id)
+      setApplications(prev =>
+        prev.filter(app => app._id !== id)
       );
 
       alert("Application cancelled ❌");
 
     } catch (err) {
 
-      console.log(err);
+      console.log("Delete error:", err);
       alert("Failed to cancel");
 
     }
   };
+
+
+  /* ================= LOADING SCREEN ================= */
+
+  if (storedUser === null) {
+    return <p style={{ textAlign: "center" }}>Loading...</p>;
+  }
 
 
   return (
@@ -140,22 +184,23 @@ function Profile() {
       {/* ========== LEFT MENU ========== */}
       <div className="profile-menu">
 
+
         <div className="profile-header">
 
-          {/* Profile Photo */}
           <img src={photo} alt="Profile" />
 
-          {/* Custom Upload Button */}
           <label className="upload-btn">
+
             Change Photo
+
             <input
               type="file"
               onChange={handlePhotoChange}
               hidden
             />
+
           </label>
 
-          {/* Email Only (No Username) */}
           <p>{details.email}</p>
 
         </div>
@@ -196,50 +241,56 @@ function Profile() {
         {/* ========== APPLICATIONS TAB ========== */}
         {activeTab === "applications" && (
 
-  <>
-    <h2>My Applications</h2>
+          <>
 
-    {loading ? (
+            <h2>My Applications</h2>
 
-      <p>Loading...</p>
+            {loading ? (
 
-    ) : applications.length === 0 ? (
+              <p>Loading...</p>
 
-      <p>No applications submitted yet</p>
+            ) : applications.length === 0 ? (
 
-    ) : (
+              <p>No applications submitted yet</p>
 
-      <div className="applications-grid">
+            ) : (
 
-        {applications.map((app) => (
+              <div className="applications-grid">
 
-          <div key={app.id} className="app-card">
+                {applications.map((app) => (
 
-            <p><b>Job:</b> {app.jobTitle}</p>
-            <p><b>Experience:</b> {app.experience}</p>
-            <p><b>Skills:</b> {app.skills}</p>
+                  <div key={app._id} className="app-card">
 
-            <p className="date">
-              Applied on:{" "}
-              {new Date(app.appliedAt).toDateString()}
-            </p>
+                    <p><b>Job:</b> {app.jobTitle}</p>
 
-            <button
-              className="delete-btn"
-              onClick={() => deleteApplication(app.id)}
-            >
-              Cancel Application
-            </button>
+                    <p><b>Experience:</b> {app.experience}</p>
 
-          </div>
+                    <p><b>Skills:</b> {app.skills}</p>
 
-        ))}
+                    <p className="date">
+                      Applied on:{" "}
+                      {new Date(app.appliedAt).toDateString()}
+                    </p>
 
-      </div>
-    )}
+                    <button
+                      className="delete-btn"
+                      onClick={() =>
+                        deleteApplication(app._id)
+                      }
+                    >
+                      Cancel Application
+                    </button>
 
-  </>
-)}
+                  </div>
+
+                ))}
+
+              </div>
+
+            )}
+
+          </>
+        )}
 
 
 
@@ -248,24 +299,32 @@ function Profile() {
 
           <div className="details-section">
 
+
             <h2>
+
               My Details
 
               {!isEditing && (
+
                 <button
                   className="edit-btn"
                   onClick={() => setIsEditing(true)}
                 >
                   ✏️ Edit
                 </button>
+
               )}
+
             </h2>
 
 
             {/* Name */}
             <p>
+
               <b>Name:</b>{" "}
+
               {isEditing ? (
+
                 <input
                   value={details.fullName}
                   onChange={(e) =>
@@ -275,16 +334,19 @@ function Profile() {
                     })
                   }
                 />
-              ) : (
-                details.fullName
-              )}
+
+              ) : details.fullName}
+
             </p>
 
 
             {/* Email */}
             <p>
+
               <b>Email:</b>{" "}
+
               {isEditing ? (
+
                 <input
                   value={details.email}
                   onChange={(e) =>
@@ -294,16 +356,19 @@ function Profile() {
                     })
                   }
                 />
-              ) : (
-                details.email
-              )}
+
+              ) : details.email}
+
             </p>
 
 
             {/* Phone */}
             <p>
+
               <b>Mobile:</b>{" "}
+
               {isEditing ? (
+
                 <input
                   value={details.phone}
                   onChange={(e) =>
@@ -313,20 +378,21 @@ function Profile() {
                     })
                   }
                 />
-              ) : (
-                details.phone
-              )}
+
+              ) : details.phone}
+
             </p>
 
 
-            {/* Save Button */}
             {isEditing && (
+
               <button
                 className="save-btn"
                 onClick={saveDetails}
               >
                 Save Changes
               </button>
+
             )}
 
           </div>

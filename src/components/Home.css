@@ -1,4 +1,28 @@
-/* ===== HERO SECTION ===== */
+/* =====================================
+   GLOBAL
+===================================== */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  animation: pageFade 0.7s ease-in-out;
+}
+
+/* Page Fade */
+@keyframes pageFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* =====================================
+   HERO SECTION
+===================================== */
+
 .hero {
   display: flex;
   justify-content: space-between;
@@ -6,25 +30,88 @@
   padding: 60px 80px;
   background: linear-gradient(90deg, #0f4c81, #1c74c8);
   color: white;
+
+  animation: heroSlide 0.9s ease forwards;
+}
+
+@keyframes heroSlide {
+  from {
+    opacity: 0;
+    transform: translateY(35px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero h1 {
   font-size: 42px;
   margin-bottom: 15px;
+
+  animation: heroText 0.9s ease forwards;
 }
 
 .hero p {
   font-size: 18px;
   margin-bottom: 25px;
   max-width: 500px;
+
+  animation: heroText 1.1s ease forwards;
 }
+
+.hero button {
+  animation: heroText 1.3s ease forwards;
+}
+
+@keyframes heroText {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero Image */
 
 .hero img {
   width: 420px;
   max-width: 100%;
+
+  animation: heroFloat 4s ease-in-out infinite,
+    heroZoom 1s ease;
 }
 
-/* ===== BUTTONS ===== */
+@keyframes heroFloat {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =====================================
+   BUTTONS
+===================================== */
+
 .btn {
   padding: 12px 22px;
   margin-right: 15px;
@@ -33,6 +120,8 @@
   font-size: 16px;
   cursor: pointer;
   font-weight: 600;
+
+  transition: all 0.25s ease;
 }
 
 .btn.primary {
@@ -46,14 +135,45 @@
   border: 2px solid white;
 }
 
-/* ===== CARDS SECTION ===== */
+/* Button Hover */
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* =====================================
+   CARDS SECTION
+===================================== */
+
 .cards {
   display: flex;
   justify-content: center;
   gap: 30px;
   padding: 60px 40px;
   background-color: #f5f7fb;
+
+  animation: sectionFade 1s ease forwards;
 }
+
+@keyframes sectionFade {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================
+   CARDS
+===================================== */
 
 .card {
   background-color: white;
@@ -61,19 +181,60 @@
   width: 260px;
   text-align: center;
   border-radius: 15px;
+
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+
+  transition: all 0.3s ease;
+
+  opacity: 0;
+  animation: cardFade 0.7s ease forwards;
 }
 
-.card:hover {
-  transform: translateY(-8px);
+/* Stagger Animation */
+
+.card:nth-child(1) {
+  animation-delay: 0.2s;
 }
+.card:nth-child(2) {
+  animation-delay: 0.4s;
+}
+.card:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+@keyframes cardFade {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover Effect */
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Image */
 
 .card img {
   width: 80px;
   height: 80px;
   margin-bottom: 15px;
+
+  transition: transform 0.3s ease;
 }
+
+.card:hover img {
+  transform: scale(1.05);
+}
+
+/* Card Text */
 
 .card h3 {
   margin-bottom: 10px;

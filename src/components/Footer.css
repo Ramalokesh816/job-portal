@@ -1,6 +1,55 @@
+/* =====================================
+   FOOTER STYLING + ANIMATION
+===================================== */
+
 .footer {
-  background: #222;
+  background: linear-gradient(90deg, #0f4c81, #1c74c8);
   color: white;
-  padding: 10px;
+
   text-align: center;
+  padding: 18px 0;
+  font-size: 14px;
+  font-weight: 500;
+
+  margin-top: 40px;
+
+  /* Animation */
+  opacity: 0;
+  animation: footerSlide 1s ease forwards;
+
+  /* Smooth hover */
+  transition: all 0.3s ease;
+}
+
+/* Footer Entrance */
+@keyframes footerSlide {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover Effect */
+.footer:hover {
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Text Animation */
+.footer p {
+  margin: 0;
+  letter-spacing: 0.5px;
+  animation: textFade 1.2s ease;
+}
+
+@keyframes textFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

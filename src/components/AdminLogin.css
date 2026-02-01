@@ -1,0 +1,288 @@
+/* =====================================
+   ADMIN GLOBAL
+===================================== */
+
+.admin-page {
+  min-height: 100vh;
+  padding: 40px;
+
+  background: linear-gradient(135deg, #f5f7fb, #e6f2ff);
+
+  text-align: center;
+
+  animation: pageFade 0.6s ease-in-out;
+}
+
+/* Page Fade */
+@keyframes pageFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================
+   TITLES
+===================================== */
+
+.admin-page h2 {
+  color: #0f4c81;
+  font-size: 28px;
+  margin-bottom: 25px;
+
+  animation: titlePop 0.7s ease;
+}
+
+@keyframes titlePop {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =====================================
+   LOGIN FORM / CARDS
+===================================== */
+
+.admin-page form {
+  max-width: 360px;
+  margin: auto;
+
+  background: white;
+
+  padding: 28px 30px;
+
+  border-radius: 12px;
+
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+
+  animation: cardUp 0.7s ease;
+}
+
+@keyframes cardUp {
+  from {
+    opacity: 0;
+    transform: translateY(35px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================
+   INPUTS
+===================================== */
+
+.admin-page input {
+  width: 100%;
+
+  padding: 10px 12px;
+
+  margin-bottom: 15px;
+
+  border-radius: 6px;
+
+  border: 1.5px solid #ccd8e3;
+
+  font-size: 14px;
+
+  transition: all 0.25s ease;
+}
+
+/* Focus Glow */
+.admin-page input:focus {
+  outline: none;
+
+  border-color: #1c74c8;
+
+  box-shadow: 0 0 0 3px rgba(28, 116, 200, 0.15);
+}
+
+/* =====================================
+   BUTTONS
+===================================== */
+
+.admin-page button {
+  background: linear-gradient(90deg, #0f4c81, #1c74c8);
+
+  color: white;
+
+  border: none;
+
+  padding: 9px 18px;
+
+  border-radius: 6px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+/* Hover */
+.admin-page button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+/* Click */
+.admin-page button:active {
+  transform: scale(0.96);
+}
+
+/* =====================================
+   DASHBOARD GRID
+===================================== */
+
+.dashboard-grid {
+  display: grid;
+
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+
+  gap: 25px;
+
+  margin: 35px 0;
+}
+
+/* Dashboard Box */
+
+.box {
+  background: white;
+
+  padding: 22px 15px;
+
+  border-radius: 12px;
+
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+
+  animation: statPop 0.7s ease forwards;
+
+  transition: all 0.3s ease;
+}
+
+/* Stagger */
+.box:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.box:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.box:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes statPop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Hover */
+.box:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+}
+
+.box h3 {
+  font-size: 30px;
+  color: #0f4c81;
+}
+
+.box p {
+  font-size: 14px;
+  color: #555;
+}
+
+/* =====================================
+   MANAGE COMPANIES
+===================================== */
+
+.company-row {
+  background: white;
+
+  padding: 12px 15px;
+
+  margin: 12px auto;
+
+  max-width: 420px;
+
+  border-radius: 8px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+
+  animation: rowFade 0.5s ease forwards;
+
+  transition: all 0.25s ease;
+}
+
+/* Row Fade */
+
+@keyframes rowFade {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Hover */
+.company-row:hover {
+  transform: translateX(5px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+/* Delete Button */
+
+.del {
+  background: #dc3545 !important;
+
+  padding: 6px 12px;
+
+  font-size: 13px;
+}
+
+.del:hover {
+  background: #b52a37 !important;
+}
+
+/* =====================================
+   RESPONSIVE
+===================================== */
+
+@media (max-width: 600px) {
+  .admin-page {
+    padding: 25px 18px;
+  }
+
+  .admin-page h2 {
+    font-size: 24px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}

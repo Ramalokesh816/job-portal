@@ -10,6 +10,9 @@ import Jobs from "./components/Jobs";
 import Employers from "./components/Employers";
 import PostJob from "./components/PostJob";
 import Apply from "./components/ApplyJob";
+import AdminLogin from "./components/AdminLogin";
+import AdminDashboard from "./components/AdminDashboard";
+import ManageCompanies from "./components/ManageCompanies"; 
 
 function App() {
 
@@ -56,6 +59,19 @@ function App() {
         <Route path="/postjob" element={<PostJob />} />
 
         <Route path="/apply" element={<Apply />} />
+        
+        <Route path="/admin-login" element={<AdminLogin />} />
+        
+        <Route
+          path="/admin-dashboard"
+          element={<AdminDashboard />}
+        />  
+        <Route
+          path="/manage-companies"
+          element={<ManageCompanies />}
+        />
+
+        
 
       </Routes>
 

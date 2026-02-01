@@ -18,11 +18,16 @@ public class Application {
     private String jobTitle;
     private String userEmail;
 
+    // Resume file name
+    private String resume;
+
     private Date appliedAt;
+
 
     public Application() {}
 
-    // Getters & Setters
+
+    /* ================= GETTERS & SETTERS ================= */
 
     public String getId() {
         return id;
@@ -32,6 +37,7 @@ public class Application {
         this.id = id;
     }
 
+
     public String getFullName() {
         return fullName;
     }
@@ -39,6 +45,7 @@ public class Application {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
+
 
     public String getExperience() {
         return experience;
@@ -48,6 +55,7 @@ public class Application {
         this.experience = experience;
     }
 
+
     public String getSkills() {
         return skills;
     }
@@ -55,6 +63,7 @@ public class Application {
     public void setSkills(String skills) {
         this.skills = skills;
     }
+
 
     public String getJobTitle() {
         return jobTitle;
@@ -64,6 +73,7 @@ public class Application {
         this.jobTitle = jobTitle;
     }
 
+
     public String getUserEmail() {
         return userEmail;
     }
@@ -71,6 +81,16 @@ public class Application {
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
     }
+
+
+    public String getResume() {
+        return resume;
+    }
+
+    public void setResume(String resume) {
+        this.resume = resume;
+    }
+
 
     public Date getAppliedAt() {
         return appliedAt;

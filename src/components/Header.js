@@ -15,6 +15,8 @@ function Header({ user, setUser }) {
         <Link to="/jobs">Jobs</Link>
         <Link to="/employers">Employers</Link>
         <Link to="/postjob">Post a Job</Link>
+        
+
 
         {/* NOT LOGGED IN */}
         {!user && (

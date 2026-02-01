@@ -1,18 +1,21 @@
 package com.jobportal.jobportal_backend.controller;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
+import java.util.Date;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;   // ✅ IMPORTANT
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jobportal.jobportal_backend.model.Application;
 import com.jobportal.jobportal_backend.repository.ApplicationRepository;
+
 
 @RestController
 @RequestMapping("/api/applications")
@@ -21,32 +24,87 @@ public class ApplicationController {
 
     private final ApplicationRepository applicationRepository;
 
+
     public ApplicationController(ApplicationRepository applicationRepository) {
         this.applicationRepository = applicationRepository;
     }
 
 
-    // Save application
-    @PostMapping
-    public Application applyJob(@RequestBody Application application) {
+    /* ================= APPLY JOB (WITH RESUME) ================= */
 
-        System.out.println("APPLICATION = " + application.getUserEmail());
-        System.out.println("NAME = " + application.getFullName());
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Application applyJob(
 
-        return applicationRepository.save(application);
+            @RequestParam("fullName") String fullName,
+            @RequestParam("experience") String experience,
+            @RequestParam("skills") String skills,
+            @RequestParam("jobTitle") String jobTitle,
+            @RequestParam("userEmail") String userEmail,
+            @RequestParam("appliedAt") String appliedAt,
+            @RequestParam("resume") MultipartFile resume
+
+    ) throws Exception {
+
+        /* ===== CREATE UPLOAD FOLDER ===== */
+
+        Path uploadPath = Paths.get("uploads");
+
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+
+        /* ===== SAVE FILE ===== */
+
+        String fileName =
+                System.currentTimeMillis() + "_" +
+                resume.getOriginalFilename();
+
+        Files.copy(
+                resume.getInputStream(),
+                uploadPath.resolve(fileName),
+                StandardCopyOption.REPLACE_EXISTING
+        );
+
+
+        /* ===== CREATE APPLICATION OBJECT ===== */
+
+        Application app = new Application();
+
+        app.setFullName(fullName);
+        app.setExperience(experience);
+        app.setSkills(skills);
+        app.setJobTitle(jobTitle);
+        app.setUserEmail(userEmail);
+        app.setAppliedAt(new Date());
+        app.setResume(fileName);
+
+
+        /* ===== SAVE TO MONGODB ===== */
+
+        return applicationRepository.save(app);
     }
 
 
-    // Get applications by user email
+    /* ================= GET USER APPLICATIONS ================= */
+
     @GetMapping("/user/{email}")
-    public List<Application> getByUser(@PathVariable String email) {
+    public List<Application> getByUserEmail(
+            @PathVariable String email
+    ) {
+
         return applicationRepository.findByUserEmail(email);
     }
 
 
-    // Delete application
+    /* ================= DELETE APPLICATION ================= */
+
     @DeleteMapping("/{id}")
-    public void deleteApplication(@PathVariable String id) {
+    public void deleteApplication(
+            @PathVariable String id
+    ) {
+
         applicationRepository.deleteById(id);
     }
+
 }

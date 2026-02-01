@@ -1,18 +1,281 @@
-.employer-list {
-  display: flex;
-  justify-content: center;
-  gap: 25px;
-  flex-wrap: wrap;
+/* =====================================
+   EMPLOYERS PAGE MAIN
+===================================== */
+
+.page {
+  min-height: 100vh;
+
+  padding: 40px 60px;
+
+  background: #f5f7fb;
+
+  animation: pageFade 0.6s ease-in-out;
 }
+
+/* Page Fade */
+
+@keyframes pageFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* =====================================
+   TITLE + SUBTEXT
+===================================== */
+
+.page h2 {
+  text-align: center;
+
+  font-size: 32px;
+  margin-bottom: 8px;
+
+  color: #0f4c81;
+
+  animation: titleSlide 0.7s ease forwards;
+}
+
+@keyframes titleSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sub-text {
+  text-align: center;
+
+  font-size: 15px;
+
+  color: #555;
+
+  margin-bottom: 30px;
+
+  animation: subFade 0.9s ease forwards;
+}
+
+@keyframes subFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* =====================================
+   EMPLOYER GRID
+===================================== */
+
+.employer-grid {
+  display: grid;
+
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+  gap: 25px;
+
+  margin-top: 25px;
+}
+
+/* =====================================
+   EMPLOYER CARD
+===================================== */
 
 .employer-card {
-  width: 260px;
-  padding: 20px;
-  box-shadow: 0 0 12px #ddd;
-  border-radius: 8px;
+  background: white;
+
+  padding: 25px 22px;
+
+  border-radius: 14px;
+
   text-align: center;
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+
+  transition: all 0.3s ease;
+
+  opacity: 0;
+  animation: cardFade 0.6s ease forwards;
 }
 
+/* Stagger Animation */
+
+.employer-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.employer-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.employer-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.employer-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.employer-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.employer-card:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+/* Card Fade */
+
+@keyframes cardFade {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover Effect */
+
+.employer-card:hover {
+  transform: translateY(-8px);
+
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.18);
+}
+
+/* =====================================
+   CARD CONTENT
+===================================== */
+
+/* Logo */
+
+.employer-card img {
+  width: 80px;
+  height: 80px;
+
+  object-fit: cover;
+
+  border-radius: 50%;
+
+  margin-bottom: 12px;
+
+  border: 2px solid #0f4c81;
+
+  transition: transform 0.3s ease;
+}
+
+.employer-card:hover img {
+  transform: scale(1.08);
+}
+
+/* Name */
+
 .employer-card h3 {
-  color: #1f6fd2;
+  margin-bottom: 6px;
+
+  color: #0f4c81;
+
+  font-size: 18px;
+}
+
+/* Location */
+
+.location {
+  font-size: 14px;
+  color: #666;
+
+  margin-bottom: 6px;
+}
+
+/* Openings */
+
+.count {
+  font-size: 14px;
+
+  color: #333;
+
+  margin: 8px 0 12px;
+
+  font-weight: 500;
+}
+
+/* =====================================
+   BUTTON
+===================================== */
+
+.employer-card button {
+  background: linear-gradient(90deg, #0f4c81, #1c74c8);
+
+  color: white;
+
+  border: none;
+
+  padding: 8px 18px;
+
+  border-radius: 6px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+/* Hover */
+
+.employer-card button:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Click */
+
+.employer-card button:active {
+  transform: translateY(1px);
+}
+
+/* =====================================
+   EMPTY / LOADING
+===================================== */
+
+.page p {
+  text-align: center;
+
+  font-size: 16px;
+
+  color: #555;
+
+  margin-top: 40px;
+}
+
+/* =====================================
+   RESPONSIVE
+===================================== */
+
+@media (max-width: 768px) {
+  .page {
+    padding: 25px 20px;
+  }
+
+  .page h2 {
+    font-size: 26px;
+  }
+}
+/* Hiring Status */
+
+.hiring {
+  color: green;
+  font-weight: 600;
+}
+
+.not-hiring {
+  color: red;
+  font-weight: 600;
 }
