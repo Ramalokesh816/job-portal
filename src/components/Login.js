@@ -7,7 +7,9 @@ function Login({ setUser: setAppUser }) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -17,6 +19,9 @@ function Login({ setUser: setAppUser }) {
   const submit = async (e) => {
     e.preventDefault();
 
+    setError("");
+    setLoading(true);
+
     try {
 
       const res = await API.post("/api/users/login", {
@@ -24,30 +29,28 @@ function Login({ setUser: setAppUser }) {
         password
       });
 
-      if (res.data === "Login Successful") {
+      // backend returns user object
+      const user = res.data;
 
-        const user = {
-          email
-        };
+      // save session
+      localStorage.setItem("user", JSON.stringify(user));
 
-        // Save logged user
-        localStorage.setItem("user", JSON.stringify(user));
+      setAppUser(user);
 
-        setAppUser(user);
-
-        navigate("/profile");
-
-      } else {
-
-        setError("Invalid Credentials ❌");
-
-      }
+      navigate("/profile");
 
     } catch (err) {
 
       console.log("Login Error:", err);
-      setError("Server Error ❌");
 
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Invalid credentials ❌");
+      }
+
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,7 +79,7 @@ function Login({ setUser: setAppUser }) {
               placeholder="Email"
               required
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
             />
 
             <input
@@ -84,7 +87,7 @@ function Login({ setUser: setAppUser }) {
               placeholder="Password"
               required
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
             />
 
 
@@ -94,8 +97,9 @@ function Login({ setUser: setAppUser }) {
               </p>
             )}
 
-            <button type="submit">
-              Sign in
+
+            <button type="submit" disabled={loading}>
+              {loading ? "Signing in..." : "Sign in"}
             </button>
 
           </form>

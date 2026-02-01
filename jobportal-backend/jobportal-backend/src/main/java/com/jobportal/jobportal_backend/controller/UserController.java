@@ -1,54 +1,55 @@
 package com.jobportal.jobportal_backend.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.jobportal.jobportal_backend.model.User;
 import com.jobportal.jobportal_backend.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin("*")
+@CrossOrigin(origins = "*") // allow vercel + localhost
 public class UserController {
 
     @Autowired
     private UserRepository userRepository;
 
 
-    /* ===== REGISTER ===== */
+    /* ================= REGISTER ================= */
+
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
+    public User register(@RequestBody User user) {
 
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            return "User already exists";
+        // Check if email already exists
+        Optional<User> existing =
+                userRepository.findByEmail(user.getEmail());
+
+        if (existing.isPresent()) {
+            throw new RuntimeException("Email already exists");
         }
-
-        userRepository.save(user);
-
-        return "Registered successfully";
-    }
-
-
-    /* ===== LOGIN ===== */
-    @PostMapping("/login")
-    public User login(@RequestBody User user) {
-
-        return userRepository
-            .findByEmail(user.getEmail())
-            .filter(u -> u.getPassword().equals(user.getPassword()))
-            .orElse(null);
-    }
-
-
-    /* ===== UPDATE PROFILE ===== */
-    @PutMapping("/update")
-    public User update(@RequestBody User user) {
 
         return userRepository.save(user);
     }
+
+
+    /* ================= LOGIN ================= */
+
+    @PostMapping("/login")
+    public User login(@RequestBody User loginUser) {
+
+        User user = userRepository
+                .findByEmail(loginUser.getEmail())
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        if (!user.getPassword().equals(loginUser.getPassword())) {
+            throw new RuntimeException("Wrong password");
+        }
+
+        // return full user
+        return user;
+    }
+
 }
