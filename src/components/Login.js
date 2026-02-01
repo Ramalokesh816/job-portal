@@ -1,81 +1,52 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { setUser } from "../services/auth";
-import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
+import API from "../services/api";
 import "./Auth.css";
 
 function Login({ setUser: setAppUser }) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
 
-  /* ================= EMAIL LOGIN ================= */
+  /* ================= LOGIN ================= */
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
 
-    // Get registered users
-    const users =
-      JSON.parse(localStorage.getItem("users")) || [];
-
-    // Find user
-    const foundUser = users.find(
-      (u) => u.email === email
-    );
-
-    if (!foundUser) {
-      setError("User not found ❌");
-      return;
-    }
-
-    if (foundUser.password !== password) {
-      setError("Wrong password ❌");
-      return;
-    }
-
-    setError("");
-
-    const user = {
-      name: foundUser.name,
-      email: foundUser.email
-    };
-
-    // Save login
-    setUser(user);
-    setAppUser(user);
-
-    navigate("/profile");
-  };
-
-
-  /* ================= GOOGLE LOGIN ================= */
-
-  const googleLogin = async () => {
     try {
 
-      const result = await signInWithPopup(auth, googleProvider);
+      const res = await API.post("/api/users/login", {
+        email,
+        password
+      });
 
-      const user = {
-        name: result.user.displayName,
-        email: result.user.email
-      };
+      if (res.data === "Login Successful") {
 
-      // Save user
-      setUser(user);
-      setAppUser(user);
+        const user = {
+          email
+        };
 
-      navigate("/profile");
+        // Save logged user
+        localStorage.setItem("user", JSON.stringify(user));
+
+        setAppUser(user);
+
+        navigate("/profile");
+
+      } else {
+
+        setError("Invalid Credentials ❌");
+
+      }
 
     } catch (err) {
 
-      console.log("Google Login Error:", err);
-      setError("Google login failed ❌");
+      console.log("Login Error:", err);
+      setError("Server Error ❌");
 
     }
   };
@@ -86,13 +57,10 @@ function Login({ setUser: setAppUser }) {
 
       <div className="login-box">
 
-
-        {/* LEFT PANEL */}
         <div className="login-left">
 
           <h2>Sign in</h2>
 
-          {/* REGISTER LINK */}
           <p>
             Don’t have an account?
             <span onClick={() => navigate("/register")}>
@@ -101,7 +69,6 @@ function Login({ setUser: setAppUser }) {
           </p>
 
 
-          {/* LOGIN FORM */}
           <form onSubmit={submit}>
 
             <input
@@ -109,9 +76,7 @@ function Login({ setUser: setAppUser }) {
               placeholder="Email"
               required
               value={email}
-              onChange={(e) =>
-                setEmail(e.target.value)
-              }
+              onChange={e => setEmail(e.target.value)}
             />
 
             <input
@@ -119,21 +84,12 @@ function Login({ setUser: setAppUser }) {
               placeholder="Password"
               required
               value={password}
-              onChange={(e) =>
-                setPassword(e.target.value)
-              }
+              onChange={e => setPassword(e.target.value)}
             />
 
 
-            {/* ERROR MESSAGE */}
             {error && (
-              <p
-                style={{
-                  color: "red",
-                  fontSize: "13px",
-                  marginTop: "5px"
-                }}
-              >
+              <p style={{ color: "red", fontSize: "13px" }}>
                 {error}
               </p>
             )}
@@ -144,24 +100,9 @@ function Login({ setUser: setAppUser }) {
 
           </form>
 
-
-          {/* GOOGLE LOGIN */}
-          <div className="social-login">
-
-            <button
-              className="google"
-              type="button"
-              onClick={googleLogin}
-            >
-              Continue with Google
-            </button>
-
-          </div>
-
         </div>
 
 
-        {/* RIGHT PANEL */}
         <div className="login-right">
           <div className="lock-circle">🔒</div>
         </div>

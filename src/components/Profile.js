@@ -123,26 +123,44 @@ function Profile() {
 
   /* ================= SAVE DETAILS ================= */
 
-  const saveDetails = () => {
+  const saveDetails = async () => {
 
-    localStorage.setItem("user", JSON.stringify(details));
+  try {
 
-    setStoredUser(details);
+    const res = await API.put(
+      "/api/users/update",
+      details
+    );
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(res.data)
+    );
+
+    setStoredUser(res.data);
 
     setIsEditing(false);
 
     alert("Profile updated successfully ✅");
-  };
+
+  } catch {
+
+    alert("Update failed ❌");
+
+  }
+};
+
 
 
   /* ================= LOGOUT ================= */
 
   const logout = () => {
 
-    localStorage.clear();
+  localStorage.removeItem("user"); // ✅ Safe logout
 
-    navigate("/login");
-  };
+  navigate("/login");
+};
+
 
 
   /* ================= DELETE APPLICATION ================= */
