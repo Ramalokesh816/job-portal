@@ -4,44 +4,49 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.jobportal.jobportal_backend.model.Application;
 import com.jobportal.jobportal_backend.repository.ApplicationRepository;
 
-
 @RestController
 @RequestMapping("/api/applications")
-@CrossOrigin(origins = "http://localhost:3000")
+
+// ✅ Allow Vercel + Localhost + Others
+@CrossOrigin("*")
+
 public class ApplicationController {
 
     private final ApplicationRepository applicationRepository;
-
 
     public ApplicationController(ApplicationRepository applicationRepository) {
         this.applicationRepository = applicationRepository;
     }
 
-
-    /* ================= APPLY JOB (WITH RESUME) ================= */
+    /* ================= APPLY JOB ================= */
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Application applyJob(
 
-            @RequestParam("fullName") String fullName,
-            @RequestParam("experience") String experience,
-            @RequestParam("skills") String skills,
-            @RequestParam("jobTitle") String jobTitle,
-            @RequestParam("userEmail") String userEmail,
-            @RequestParam("appliedAt") String appliedAt,
-            @RequestParam("resume") MultipartFile resume
+        @RequestParam("fullName") String fullName,
+        @RequestParam("experience") String experience,
+        @RequestParam("skills") String skills,
+        @RequestParam("jobTitle") String jobTitle,
+        @RequestParam("userEmail") String userEmail,
+        @RequestParam("appliedAt") String appliedAt,
+        @RequestParam("resume") MultipartFile resume
 
     ) throws Exception {
 
@@ -54,16 +59,16 @@ public class ApplicationController {
         }
 
 
-        /* ===== SAVE FILE ===== */
+        /* ===== SAVE RESUME FILE ===== */
 
         String fileName =
-                System.currentTimeMillis() + "_" +
-                resume.getOriginalFilename();
+            System.currentTimeMillis() + "_" +
+            resume.getOriginalFilename();
 
         Files.copy(
-                resume.getInputStream(),
-                uploadPath.resolve(fileName),
-                StandardCopyOption.REPLACE_EXISTING
+            resume.getInputStream(),
+            uploadPath.resolve(fileName),
+            StandardCopyOption.REPLACE_EXISTING
         );
 
 
@@ -90,7 +95,7 @@ public class ApplicationController {
 
     @GetMapping("/user/{email}")
     public List<Application> getByUserEmail(
-            @PathVariable String email
+        @PathVariable String email
     ) {
 
         return applicationRepository.findByUserEmail(email);
@@ -101,10 +106,9 @@ public class ApplicationController {
 
     @DeleteMapping("/{id}")
     public void deleteApplication(
-            @PathVariable String id
+        @PathVariable String id
     ) {
 
         applicationRepository.deleteById(id);
     }
-
 }
