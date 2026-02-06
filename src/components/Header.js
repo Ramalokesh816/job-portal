@@ -1,7 +1,32 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import "./Header.css";
 
-function Header({ user, setUser }) {
+function Header() {
+
+  const [user, setUser] = useState(null);
+
+
+  useEffect(() => {
+
+    // Function to check user
+    const checkUser = () => {
+
+      const stored =
+        JSON.parse(localStorage.getItem("user"));
+
+      setUser(stored);
+    };
+
+    // Initial check
+    checkUser();
+
+    // Check every 500ms (lightweight)
+    const interval = setInterval(checkUser, 500);
+
+    return () => clearInterval(interval);
+
+  }, []);
 
 
   return (
@@ -15,7 +40,6 @@ function Header({ user, setUser }) {
         <Link to="/jobs">Jobs</Link>
         <Link to="/employers">Employers</Link>
         <Link to="/postjob">Post a Job</Link>
-        
 
 
         {/* NOT LOGGED IN */}
@@ -26,11 +50,11 @@ function Header({ user, setUser }) {
           </>
         )}
 
+
         {/* LOGGED IN */}
         {user && (
           <>
             <Link to="/profile">Profile</Link>
-            {/* Logout button removed */}
           </>
         )}
 

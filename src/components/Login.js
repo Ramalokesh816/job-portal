@@ -1,58 +1,107 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../firebase";
+
 import API from "../services/api";
+
 import "./Auth.css";
 
-function Login({ setUser: setAppUser }) {
+function Login() {
+
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
-
-
-  /* ================= LOGIN ================= */
-
+  // ===== NORMAL LOGIN =====
   const submit = async (e) => {
-    e.preventDefault();
 
-    setError("");
-    setLoading(true);
+  e.preventDefault();
 
-    try {
+  try {
 
-      const res = await API.post("/api/users/login", {
-        email,
-        password
-      });
+    const res = await API.post("/api/users/login", { email, password });
 
-      // backend returns user object
-      const user = res.data;
+console.log("LOGIN RESPONSE:", res.data);
 
-      // save session
-      localStorage.setItem("user", JSON.stringify(user));
+localStorage.setItem("token", res.data.token);
 
-      setAppUser(user);
 
-      navigate("/profile");
+    localStorage.setItem(
+      "token",
+      res.data.token
+    );
 
-    } catch (err) {
+    localStorage.setItem(
+      "user",
+      JSON.stringify(res.data.user)
+    );
 
-      console.log("Login Error:", err);
+    alert("Login Successful ✅");
 
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Invalid credentials ❌");
+    navigate("/");
+
+  } catch (err) {
+
+    console.log(err.response);
+
+    alert(
+      err.response?.data?.message ||
+      "Login Failed ❌"
+    );
+  }
+};
+
+
+  // ===== GOOGLE LOGIN =====
+  const handleGoogleLogin = async () => {
+
+  try {
+
+    // Firebase popup
+    const result = await signInWithPopup(
+      auth,
+      googleProvider
+    );
+
+    const user = result.user;
+
+    // Send to backend
+    const res = await API.post(
+      "/api/users/google-login",
+      {
+        name: user.displayName,
+        email: user.email,
+        provider: "google"
       }
+    );
 
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Save token + user
+    localStorage.setItem(
+      "token",
+      res.data.token
+    );
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(res.data.user)
+    );
+
+    alert("Google Login Successful ✅");
+
+    navigate("/");
+
+  } catch (err) {
+
+    console.log(err);
+
+    alert("Google Login Failed ❌");
+  }
+};
+
 
 
   return (
@@ -60,16 +109,10 @@ function Login({ setUser: setAppUser }) {
 
       <div className="login-box">
 
+
         <div className="login-left">
 
-          <h2>Sign in</h2>
-
-          <p>
-            Don’t have an account?
-            <span onClick={() => navigate("/register")}>
-              {" "}Create now
-            </span>
-          </p>
+          <h2>Sign In</h2>
 
 
           <form onSubmit={submit}>
@@ -79,7 +122,9 @@ function Login({ setUser: setAppUser }) {
               placeholder="Email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
             />
 
             <input
@@ -87,22 +132,31 @@ function Login({ setUser: setAppUser }) {
               placeholder="Password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
             />
 
-
-            {error && (
-              <p style={{ color: "red", fontSize: "13px" }}>
-                {error}
-              </p>
-            )}
-
-
-            <button type="submit" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
+            <button type="submit">
+              Login
             </button>
 
           </form>
+
+
+          <div className="social-login">
+
+            <p>OR</p>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="google-btn"
+            >
+              Continue with Google
+            </button>
+
+          </div>
 
         </div>
 
@@ -111,8 +165,8 @@ function Login({ setUser: setAppUser }) {
           <div className="lock-circle">🔒</div>
         </div>
 
-      </div>
 
+      </div>
     </div>
   );
 }

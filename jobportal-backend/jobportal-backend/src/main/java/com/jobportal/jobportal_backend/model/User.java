@@ -8,13 +8,18 @@ public class User {
 
     @Id
     private String id;
-    private String fullName;
+
+    private String name;
     private String email;
     private String password;
+    private String phone;
     private String role;
+    private String provider; // local / google
 
-    public User() {
-    }
+    public User() {}
+
+
+    // ========== GETTERS & SETTERS ==========
 
     public String getId() {
         return id;
@@ -24,12 +29,12 @@ public class User {
         this.id = id;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getName() {
+        return name;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -37,7 +42,7 @@ public class User {
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.email = email.toLowerCase().trim();
     }
 
     public String getPassword() {
@@ -45,7 +50,15 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = password.trim();
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getRole() {
@@ -54,5 +67,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 }

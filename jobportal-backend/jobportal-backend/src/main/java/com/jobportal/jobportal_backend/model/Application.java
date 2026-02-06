@@ -22,6 +22,9 @@ public class Application {
     private String resume;
 
     private Date appliedAt;
+    private boolean verified = false;
+
+
 
 
     public Application() {}
@@ -99,4 +102,12 @@ public class Application {
     public void setAppliedAt(Date appliedAt) {
         this.appliedAt = appliedAt;
     }
+    public boolean isVerified() {
+    return verified;
+}
+
+public void setVerified(boolean verified) {
+    this.verified = verified;
+}
+
 }

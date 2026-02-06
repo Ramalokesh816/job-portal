@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import API from "../services/api";
+
 import "./Auth.css";
 
 function Register() {
@@ -10,93 +13,70 @@ function Register() {
     name: "",
     email: "",
     password: "",
-    mobile: ""
+    phone: ""
   });
 
-  // Password validation
-  const isStrongPassword = (password) => {
 
-    // At least 1 uppercase, 1 number, 1 special, 8 chars
-    const pattern =
-      /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const submit = async (e) => {
 
-    return pattern.test(password);
-  };
-
-  const submit = (e) => {
     e.preventDefault();
 
-    // Get existing users
-    const users =
-      JSON.parse(localStorage.getItem("users")) || [];
+    try {
 
-    // Check duplicate email
-    const emailExists = users.find(
-      (u) => u.email === form.email
-    );
-
-    if (emailExists) {
-      alert("Email already registered ❌");
-      return;
-    }
-
-    // Check password strength
-    if (!isStrongPassword(form.password)) {
-      alert(
-        "Password must contain:\n" +
-        "- 1 Uppercase\n" +
-        "- 1 Number\n" +
-        "- 1 Special Symbol\n" +
-        "- Min 8 characters"
+      const res = await API.post(
+        "/api/users/register",
+        {
+          ...form,
+          role: "USER"
+        }
       );
-      return;
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data)
+      );
+
+      alert("Registered Successfully ✅");
+
+      navigate("/");
+
+    } catch (err) {
+
+      alert(
+        err.response?.data?.message ||
+        "Register Failed ❌"
+      );
     }
-
-    // Save new user
-    const newUser = {
-      name: form.name,
-      email: form.email,
-      password: form.password,
-      mobile: form.mobile
-    };
-
-    users.push(newUser);
-
-    localStorage.setItem("users", JSON.stringify(users));
-
-    alert("Account created successfully ✅");
-
-    // Go to login
-    navigate("/login");
   };
+
 
   return (
     <div className="login-page">
 
       <div className="login-box">
 
+
         <div className="login-left">
 
           <h2>Register</h2>
 
-          <p>
-            Already have an account?
-            <span onClick={() => navigate("/login")}>
-              {" "}Login
-            </span>
-          </p>
 
           <form onSubmit={submit}>
 
+
             <input
               type="text"
-              placeholder="Full Name"
+              placeholder="Name"
               required
               value={form.name}
               onChange={(e) =>
-                setForm({ ...form, name: e.target.value })
+                setForm({
+                  ...form,
+                  name: e.target.value
+                })
               }
             />
+
 
             <input
               type="email"
@@ -104,9 +84,13 @@ function Register() {
               required
               value={form.email}
               onChange={(e) =>
-                setForm({ ...form, email: e.target.value })
+                setForm({
+                  ...form,
+                  email: e.target.value
+                })
               }
             />
+
 
             <input
               type="password"
@@ -114,19 +98,27 @@ function Register() {
               required
               value={form.password}
               onChange={(e) =>
-                setForm({ ...form, password: e.target.value })
+                setForm({
+                  ...form,
+                  password: e.target.value
+                })
               }
             />
 
+
             <input
               type="text"
-              placeholder="Mobile Number"
+              placeholder="Phone"
               required
-              value={form.mobile}
+              value={form.phone}
               onChange={(e) =>
-                setForm({ ...form, mobile: e.target.value })
+                setForm({
+                  ...form,
+                  phone: e.target.value
+                })
               }
             />
+
 
             <button type="submit">
               Register
@@ -141,8 +133,8 @@ function Register() {
           <div className="lock-circle">🔒</div>
         </div>
 
-      </div>
 
+      </div>
     </div>
   );
 }

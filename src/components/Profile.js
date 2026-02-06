@@ -8,12 +8,12 @@ function Profile() {
   const navigate = useNavigate();
 
 
-  /* ================= USER STATE ================= */
+  /* ================= USER ================= */
 
   const [storedUser, setStoredUser] = useState(null);
 
 
-  /* ================= UI STATES ================= */
+  /* ================= UI ================= */
 
   const [activeTab, setActiveTab] = useState("applications");
 
@@ -34,42 +34,34 @@ function Profile() {
   /* ================= USER DETAILS ================= */
 
   const [details, setDetails] = useState({
-    fullName: "",
-    email: "",
-    phone: ""
-  });
+  name: "",
+  email: "",
+  phone: ""
+});
 
 
-  /* ================= LOAD USER ONCE ================= */
+  /* ================= LOAD USER ================= */
 
   useEffect(() => {
 
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user =
+      JSON.parse(localStorage.getItem("user"));
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
 
     setStoredUser(user);
 
-    if (user) {
-      setDetails({
-        fullName: user.fullName || "",
-        email: user.email || "",
-        phone: user.phone || ""
-      });
-    }
-
-  }, []);
+    setDetails({
+  name: user.name,
+  email: user.email,
+  phone: user.phone
+});
 
 
-  /* ================= CHECK LOGIN ================= */
-
-  useEffect(() => {
-
-    if (storedUser === null) return; // wait till load
-
-    if (!storedUser?.email) {
-      navigate("/login");
-    }
-
-  }, [storedUser, navigate]);
+  }, [navigate]);
 
 
   /* ================= FETCH APPLICATIONS ================= */
@@ -125,53 +117,60 @@ function Profile() {
 
   const saveDetails = async () => {
 
-  try {
+    try {
 
-    const res = await API.put(
-      "/api/users/update",
-      details
-    );
+      const res = await API.put(
+        "/api/users/update",
+        {
+          name: details.name,
+          email: details.email,
+          phone: details.phone
+        }
+      );
 
-    localStorage.setItem(
-      "user",
-      JSON.stringify(res.data)
-    );
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data)
+      );
 
-    setStoredUser(res.data);
+      setStoredUser(res.data);
 
-    setIsEditing(false);
+      setIsEditing(false);
 
-    alert("Profile updated successfully ✅");
+      alert("Profile updated successfully ✅");
 
-  } catch {
+    } catch (err) {
 
-    alert("Update failed ❌");
+      console.log("Update error:", err);
 
-  }
-};
-
+      alert(
+        err.response?.data?.message ||
+        "Update failed ❌"
+      );
+    }
+  };
 
 
   /* ================= LOGOUT ================= */
 
   const logout = () => {
-
-  localStorage.removeItem("user"); // ✅ Safe logout
-
+  localStorage.removeItem("user");
   navigate("/login");
 };
-
 
 
   /* ================= DELETE APPLICATION ================= */
 
   const deleteApplication = async (id) => {
 
-    if (!window.confirm("Cancel this application?")) return;
+    if (!window.confirm("Cancel this application?"))
+      return;
 
     try {
 
-      await API.delete(`/api/applications/${id}`);
+      await API.delete(
+        `/api/applications/${id}`
+      );
 
       setApplications(prev =>
         prev.filter(app => app._id !== id)
@@ -182,16 +181,20 @@ function Profile() {
     } catch (err) {
 
       console.log("Delete error:", err);
-      alert("Failed to cancel");
 
+      alert("Failed to cancel ❌");
     }
   };
 
 
-  /* ================= LOADING SCREEN ================= */
+  /* ================= LOADING ================= */
 
-  if (storedUser === null) {
-    return <p style={{ textAlign: "center" }}>Loading...</p>;
+  if (!storedUser) {
+    return (
+      <p style={{ textAlign: "center" }}>
+        Loading...
+      </p>
+    );
   }
 
 
@@ -226,23 +229,40 @@ function Profile() {
 
         <ul>
 
-          <li onClick={() => navigate("/")}>Home</li>
+          <li onClick={() => navigate("/")}>
+            Home
+          </li>
 
           <li
-            className={activeTab === "applications" ? "active" : ""}
-            onClick={() => setActiveTab("applications")}
+            className={
+              activeTab === "applications"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setActiveTab("applications")
+            }
           >
             My Applications
           </li>
 
           <li
-            className={activeTab === "details" ? "active" : ""}
-            onClick={() => setActiveTab("details")}
+            className={
+              activeTab === "details"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setActiveTab("details")
+            }
           >
             My Details
           </li>
 
-          <li className="logout" onClick={logout}>
+          <li
+            className="logout"
+            onClick={logout}
+          >
             Logout
           </li>
 
@@ -251,12 +271,11 @@ function Profile() {
       </div>
 
 
-
       {/* ========== RIGHT CONTENT ========== */}
       <div className="profile-content">
 
 
-        {/* ========== APPLICATIONS TAB ========== */}
+        {/* ===== APPLICATIONS TAB ===== */}
         {activeTab === "applications" && (
 
           <>
@@ -269,7 +288,7 @@ function Profile() {
 
             ) : applications.length === 0 ? (
 
-              <p>No applications submitted yet</p>
+              <p>No applications yet</p>
 
             ) : (
 
@@ -277,23 +296,42 @@ function Profile() {
 
                 {applications.map((app) => (
 
-                  <div key={app._id} className="app-card">
+                  <div
+                    key={app._id}
+                    className="app-card"
+                  >
 
-                    <p><b>Job:</b> {app.jobTitle}</p>
+                    <p>
+                      <b>Job:</b>{" "}
+                      {app.jobTitle}
+                    </p>
 
-                    <p><b>Experience:</b> {app.experience}</p>
+                    <p>
+                      <b>Experience:</b>{" "}
+                      {app.experience}
+                    </p>
 
-                    <p><b>Skills:</b> {app.skills}</p>
+                    <p>
+                      <b>Skills:</b>{" "}
+                      {app.skills}
+                    </p>
 
                     <p className="date">
+
                       Applied on:{" "}
-                      {new Date(app.appliedAt).toDateString()}
+
+                      {new Date(
+                        app.appliedAt
+                      ).toDateString()}
+
                     </p>
 
                     <button
                       className="delete-btn"
                       onClick={() =>
-                        deleteApplication(app._id)
+                        deleteApplication(
+                          app._id
+                        )
                       }
                     >
                       Cancel Application
@@ -312,7 +350,7 @@ function Profile() {
 
 
 
-        {/* ========== DETAILS TAB ========== */}
+        {/* ===== DETAILS TAB ===== */}
         {activeTab === "details" && (
 
           <div className="details-section">
@@ -326,7 +364,9 @@ function Profile() {
 
                 <button
                   className="edit-btn"
-                  onClick={() => setIsEditing(true)}
+                  onClick={() =>
+                    setIsEditing(true)
+                  }
                 >
                   ✏️ Edit
                 </button>
@@ -336,7 +376,7 @@ function Profile() {
             </h2>
 
 
-            {/* Name */}
+            {/* NAME */}
             <p>
 
               <b>Name:</b>{" "}
@@ -344,21 +384,21 @@ function Profile() {
               {isEditing ? (
 
                 <input
-                  value={details.fullName}
+                  value={details.name}
                   onChange={(e) =>
                     setDetails({
                       ...details,
-                      fullName: e.target.value
+                      name: e.target.value
                     })
                   }
                 />
 
-              ) : details.fullName}
+              ) : details.name}
 
             </p>
 
 
-            {/* Email */}
+            {/* EMAIL */}
             <p>
 
               <b>Email:</b>{" "}
@@ -376,28 +416,6 @@ function Profile() {
                 />
 
               ) : details.email}
-
-            </p>
-
-
-            {/* Phone */}
-            <p>
-
-              <b>Mobile:</b>{" "}
-
-              {isEditing ? (
-
-                <input
-                  value={details.phone}
-                  onChange={(e) =>
-                    setDetails({
-                      ...details,
-                      phone: e.target.value
-                    })
-                  }
-                />
-
-              ) : details.phone}
 
             </p>
 
