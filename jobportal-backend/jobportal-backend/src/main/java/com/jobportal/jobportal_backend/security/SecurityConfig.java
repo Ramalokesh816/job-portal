@@ -19,7 +19,6 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http)
             throws Exception {
@@ -48,12 +47,12 @@ public class SecurityConfig {
                     "/api/users/register",
                     "/api/users/google-login",
 
-                    // EMAIL VERIFY (IMPORTANT)
+                    // EMAIL VERIFY
                     "/api/applications/verify",
                     "/api/applications/verify/**"
                 ).permitAll()
 
-                // Everything else protected
+                // All other APIs need token
                 .anyRequest().authenticated()
             )
 
@@ -67,24 +66,24 @@ public class SecurityConfig {
     }
 
 
-    // CORS Config
+    // =========================
+    // CORS CONFIGURATION
+    // =========================
     @Bean
     public CorsConfigurationSource corsSource() {
 
-        CorsConfiguration config =
-                new CorsConfiguration();
+        CorsConfiguration config = new CorsConfiguration();
 
+        // ✅ CHANGE THIS TO YOUR FRONTEND URL
         config.setAllowedOrigins(
-            List.of("http://localhost:3000")
+            List.of("https://job-portal-5-cg3o.onrender.com")
         );
 
         config.setAllowedMethods(
-            List.of("GET","POST","PUT","DELETE","OPTIONS")
+            List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
         );
 
-        config.setAllowedHeaders(
-            List.of("*")
-        );
+        config.setAllowedHeaders(List.of("*"));
 
         config.setAllowCredentials(true);
 
