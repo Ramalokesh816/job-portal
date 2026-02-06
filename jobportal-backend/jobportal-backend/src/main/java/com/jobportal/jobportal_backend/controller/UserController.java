@@ -17,7 +17,7 @@ import com.jobportal.jobportal_backend.security.JwtUtil;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://job-portal-5-cg3o.onrender.com")
 public class UserController {
 
     @Autowired
