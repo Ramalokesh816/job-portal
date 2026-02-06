@@ -13,7 +13,6 @@ import java.util.UUID;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,7 +30,6 @@ import com.jobportal.jobportal_backend.service.EmailService;
 
 @RestController
 @RequestMapping("/api/applications")
-@CrossOrigin("*")
 public class ApplicationController {
 
     private final ApplicationRepository applicationRepository;
