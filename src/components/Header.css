@@ -169,3 +169,16 @@ nav a:active {
     font-size: 14px;
   }
 }
+@media (max-width: 768px) {
+
+  .header {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .header-links {
+    flex-direction: column;
+    width: 100%;
+    text-align: center;
+  }
+}

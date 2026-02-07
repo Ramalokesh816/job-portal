@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,10 @@ import com.jobportal.jobportal_backend.service.EmailService;
 
 @RestController
 @RequestMapping("/api/applications")
+@CrossOrigin(origins = {
+    "http://localhost:3000",
+    "https://job-portal-5-cg3o.onrender.com"
+})
 public class ApplicationController {
 
     private final ApplicationRepository applicationRepository;
@@ -97,7 +102,7 @@ public class ApplicationController {
         app.setAppliedAt(new Date());
         app.setResume(fileName);
 
-        // ❗ Not verified yet
+        // Not verified yet
         app.setVerified(false);
 
         applicationRepository.save(app);
@@ -118,10 +123,12 @@ public class ApplicationController {
         tokenRepository.save(verify);
 
 
-        /* ===== SEND EMAIL ===== */
+        /* ===== SEND EMAIL (FIXED LINK) ===== */
 
+        // CHANGE THIS TO YOUR BACKEND URL
         String link =
-            "http://localhost:8080/api/applications/verify?token="
+            "https://job-portal-4-ohxr.onrender.com"
+            + "/api/applications/verify?token="
             + token;
 
         emailService.sendVerificationMail(
@@ -199,11 +206,15 @@ public class ApplicationController {
     /* ================= DELETE ================= */
 
     @DeleteMapping("/{id}")
-    public void deleteApplication(
+    public ResponseEntity<?> deleteApplication(
         @PathVariable String id
     ) {
 
         applicationRepository.deleteById(id);
+
+        return ResponseEntity.ok(
+            Map.of("message", "Deleted Successfully ✅")
+        );
     }
-    
+
 }

@@ -32,31 +32,38 @@ public class UserController {
 
 
     // ===== REGISTER =====
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+   @PostMapping("/register")
+public ResponseEntity<?> register(@RequestBody User user) {
 
-        Optional<User> existing =
-                userRepository.findByEmail(user.getEmail());
+    if (user.getEmail() == null || user.getPassword() == null) {
 
-        if (existing.isPresent()) {
-
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message",
-                            "Email already exists"));
-        }
-
-        // Encrypt password
-        user.setPassword(
-                encoder.encode(user.getPassword())
-        );
-
-        user.setRole("USER");
-        user.setProvider("local");
-
-        User saved = userRepository.save(user);
-
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.badRequest()
+                .body(Map.of("message", "Missing fields"));
     }
+
+    Optional<User> existing =
+            userRepository.findByEmail(user.getEmail());
+
+    if (existing.isPresent()) {
+
+        return ResponseEntity.badRequest()
+                .body(Map.of(
+                        "message",
+                        "Email already exists"
+                ));
+    }
+
+    user.setPassword(
+            encoder.encode(user.getPassword())
+    );
+
+    user.setRole("USER");
+    user.setProvider("local");
+
+    User saved = userRepository.save(user);
+
+    return ResponseEntity.ok(saved);
+}
 
 
     // ===== LOGIN =====

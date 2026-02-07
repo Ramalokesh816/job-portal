@@ -36,3 +36,47 @@
     transform: rotate(360deg);
   }
 }
+/* ========== MOBILE RESPONSIVE ========== */
+
+@media (max-width: 768px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .container,
+  .login-box,
+  .card,
+  .form-box {
+    width: 100% !important;
+    padding: 15px;
+  }
+
+  input,
+  button,
+  select,
+  textarea {
+    width: 100% !important;
+    font-size: 16px;
+  }
+
+  nav {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .job-card,
+  .profile-card {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  h1, h2, h3 {
+    text-align: center;
+  }
+}
