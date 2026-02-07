@@ -12,24 +12,28 @@ import PostJob from "./components/PostJob";
 import Apply from "./components/ApplyJob";
 import AdminLogin from "./components/AdminLogin";
 import AdminDashboard from "./components/AdminDashboard";
-import ManageCompanies from "./components/ManageCompanies"; 
+import ManageCompanies from "./components/ManageCompanies";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+
 
 function App() {
 
   const [user, setUser] = useState(null);
 
+
   // Load user after refresh
   useEffect(() => {
 
-    const savedUser = localStorage.getItem("user");
+    const savedUser =
+      localStorage.getItem("user");
 
     if (savedUser) {
       setUser(JSON.parse(savedUser));
-    } else {
-      setUser(null);
     }
 
   }, []);
+
 
   return (
     <>
@@ -38,18 +42,29 @@ function App() {
 
       <Routes>
 
-        <Route path="/" element={<Home user={user} />} />
+        <Route
+          path="/"
+          element={<Home user={user} />}
+        />
 
         <Route
           path="/login"
-          element={<Login setUser={setUser} />}
+          element={<Login />}
         />
 
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/register"
+          element={<Register />}
+        />
 
+        {/* PROTECTED */}
         <Route
           path="/profile"
-          element={<Profile setUser={setUser} />}
+          element={
+            <ProtectedRoute>
+              <Profile setUser={setUser} />
+            </ProtectedRoute>
+          }
         />
 
         <Route path="/jobs" element={<Jobs />} />
@@ -59,19 +74,18 @@ function App() {
         <Route path="/postjob" element={<PostJob />} />
 
         <Route path="/apply" element={<Apply />} />
-        
+
         <Route path="/admin-login" element={<AdminLogin />} />
-        
+
         <Route
           path="/admin-dashboard"
           element={<AdminDashboard />}
-        />  
+        />
+
         <Route
           path="/manage-companies"
           element={<ManageCompanies />}
         />
-
-        
 
       </Routes>
 

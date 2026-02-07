@@ -19,89 +19,84 @@ function Login() {
   // ===== NORMAL LOGIN =====
   const submit = async (e) => {
 
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
+    try {
 
-    const res = await API.post("/api/users/login", { email, password });
+      const res = await API.post(
+        "/api/users/login",
+        { email, password }
+      );
 
-console.log("LOGIN RESPONSE:", res.data);
+      console.log("LOGIN:", res.data);
 
-localStorage.setItem("token", res.data.token);
+      // Save token
+      localStorage.setItem(
+        "token",
+        res.data.token
+      );
 
+      // Save user
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data.user)
+      );
 
-    localStorage.setItem(
-      "token",
-      res.data.token
-    );
+      alert("Login Successful ✅");
 
-    localStorage.setItem(
-      "user",
-      JSON.stringify(res.data.user)
-    );
+      // Go to profile
+      navigate("/profile");
 
-    alert("Login Successful ✅");
+    } catch (err) {
 
-    navigate("/");
-
-  } catch (err) {
-
-    console.log(err.response);
-
-    alert(
-      err.response?.data?.message ||
-      "Login Failed ❌"
-    );
-  }
-};
+      alert(
+        err.response?.data?.message ||
+        "Login Failed ❌"
+      );
+    }
+  };
 
 
   // ===== GOOGLE LOGIN =====
   const handleGoogleLogin = async () => {
 
-  try {
+    try {
 
-    // Firebase popup
-    const result = await signInWithPopup(
-      auth,
-      googleProvider
-    );
+      const result = await signInWithPopup(
+        auth,
+        googleProvider
+      );
 
-    const user = result.user;
+      const user = result.user;
 
-    // Send to backend
-    const res = await API.post(
-      "/api/users/google-login",
-      {
-        name: user.displayName,
-        email: user.email,
-        provider: "google"
-      }
-    );
+      const res = await API.post(
+        "/api/users/google-login",
+        {
+          name: user.displayName,
+          email: user.email,
+          provider: "google"
+        }
+      );
 
-    // Save token + user
-    localStorage.setItem(
-      "token",
-      res.data.token
-    );
+      localStorage.setItem(
+        "token",
+        res.data.token
+      );
 
-    localStorage.setItem(
-      "user",
-      JSON.stringify(res.data.user)
-    );
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data.user)
+      );
 
-    alert("Google Login Successful ✅");
+      alert("Google Login Successful ✅");
 
-    navigate("/");
+      navigate("/profile");
 
-  } catch (err) {
+    } catch (err) {
 
-    console.log(err);
-
-    alert("Google Login Failed ❌");
-  }
-};
-
+      alert("Google Login Failed ❌");
+    }
+  };
 
 
   return (
@@ -109,11 +104,9 @@ localStorage.setItem("token", res.data.token);
 
       <div className="login-box">
 
-
         <div className="login-left">
 
           <h2>Sign In</h2>
-
 
           <form onSubmit={submit}>
 
@@ -164,7 +157,6 @@ localStorage.setItem("token", res.data.token);
         <div className="login-right">
           <div className="lock-circle">🔒</div>
         </div>
-
 
       </div>
     </div>

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +18,7 @@ import com.jobportal.jobportal_backend.security.JwtUtil;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "https://job-portal-5-cg3o.onrender.com")
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
@@ -26,120 +27,117 @@ public class UserController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    private final BCryptPasswordEncoder encoder =
+            new BCryptPasswordEncoder();
 
-    // ========== REGISTER ==========
+
+    // ===== REGISTER =====
     @PostMapping("/register")
-    public ResponseEntity<?> register(
-            @RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody User user) {
 
         Optional<User> existing =
-                userRepository.findByEmail(
-                        user.getEmail());
+                userRepository.findByEmail(user.getEmail());
 
         if (existing.isPresent()) {
 
             return ResponseEntity.badRequest()
-                    .body(Map.of(
-                        "message",
-                        "Email already exists"));
+                    .body(Map.of("message",
+                            "Email already exists"));
         }
+
+        // Encrypt password
+        user.setPassword(
+                encoder.encode(user.getPassword())
+        );
 
         user.setRole("USER");
         user.setProvider("local");
 
-        User saved =
-                userRepository.save(user);
+        User saved = userRepository.save(user);
 
         return ResponseEntity.ok(saved);
     }
 
 
-    // ========== LOGIN ==========
+    // ===== LOGIN =====
     @PostMapping("/login")
-public ResponseEntity<?> login(@RequestBody User loginUser) {
+    public ResponseEntity<?> login(
+            @RequestBody User loginUser) {
 
-    String email =
-            loginUser.getEmail().toLowerCase().trim();
+        Optional<User> optionalUser =
+                userRepository.findByEmail(
+                        loginUser.getEmail()
+                );
 
-    String password =
-            loginUser.getPassword().trim();
+        if (optionalUser.isEmpty()) {
 
+            return ResponseEntity.status(401)
+                    .body(Map.of("message",
+                            "User not found"));
+        }
 
-    Optional<User> optionalUser =
-            userRepository.findByEmail(email);
+        User user = optionalUser.get();
 
+        // Check encrypted password
+        if (!encoder.matches(
+                loginUser.getPassword(),
+                user.getPassword())) {
 
-    if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("message",
+                            "Wrong password"));
+        }
 
-        return ResponseEntity
-            .status(401)
-            .body(Map.of("message", "User not found"));
+        String token =
+                jwtUtil.generateToken(
+                        user.getEmail());
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "token", token,
+                        "user", user
+                )
+        );
     }
 
 
-    User user = optionalUser.get();
+    // ===== GOOGLE LOGIN =====
+    @PostMapping("/google-login")
+    public ResponseEntity<?> googleLogin(
+            @RequestBody User googleUser) {
 
+        Optional<User> optionalUser =
+                userRepository.findByEmail(
+                        googleUser.getEmail());
 
-    if (!user.getPassword().equals(password)) {
+        User user;
 
-        return ResponseEntity
-            .status(401)
-            .body(Map.of("message", "Wrong password"));
+        if (optionalUser.isPresent()) {
+
+            user = optionalUser.get();
+
+        } else {
+
+            user = new User();
+
+            user.setName(googleUser.getName());
+            user.setEmail(googleUser.getEmail());
+            user.setRole("USER");
+            user.setProvider("google");
+            user.setPassword("GOOGLE_USER");
+
+            user = userRepository.save(user);
+        }
+
+        String token =
+                jwtUtil.generateToken(
+                        user.getEmail());
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "token", token,
+                        "user", user
+                )
+        );
     }
-
-
-    // Generate JWT
-    String token =
-            jwtUtil.generateToken(user.getEmail());
-
-
-    return ResponseEntity.ok(
-        Map.of(
-            "token", token,
-            "user", user
-        )
-    );
-}
-
-    // ========== GOOGLE LOGIN ==========
-   @PostMapping("/google-login")
-public ResponseEntity<?> googleLogin(
-        @RequestBody User googleUser) {
-
-    Optional<User> optionalUser =
-            userRepository.findByEmail(
-                    googleUser.getEmail());
-
-    User user;
-
-    if (optionalUser.isPresent()) {
-
-        user = optionalUser.get();
-
-    } else {
-
-        user = new User();
-
-        user.setName(googleUser.getName());
-        user.setEmail(googleUser.getEmail());
-        user.setRole("USER");
-        user.setProvider("google");
-        user.setPassword("GOOGLE_USER");
-
-        user = userRepository.save(user);
-    }
-
-    // Generate JWT
-    String token =
-            jwtUtil.generateToken(
-                    user.getEmail());
-
-    return ResponseEntity.ok(
-            Map.of(
-                "token", token,
-                "user", user
-            )
-    );
-}
-
 }

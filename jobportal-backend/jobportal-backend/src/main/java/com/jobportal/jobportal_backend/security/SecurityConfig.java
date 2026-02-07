@@ -2,22 +2,17 @@ package com.jobportal.jobportal_backend.security;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class SecurityConfig {
-
-    @Autowired
-    private JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http)
@@ -31,36 +26,21 @@ public class SecurityConfig {
             // Disable CSRF
             .csrf(csrf -> csrf.disable())
 
-            // Stateless JWT
+            // Disable Session (Stateless)
             .sessionManagement(session ->
                 session.sessionCreationPolicy(
                     SessionCreationPolicy.STATELESS
                 )
             )
 
-            // Authorization
+            // Allow ALL requests (TEMP FIX)
             .authorizeHttpRequests(auth -> auth
-
-                // PUBLIC APIs
-                .requestMatchers(
-                    "/api/users/login",
-                    "/api/users/register",
-                    "/api/users/google-login",
-
-                    // EMAIL VERIFY
-                    "/api/applications/verify",
-                    "/api/applications/verify/**"
-                ).permitAll()
-
-                // All other APIs need token
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
 
-            // JWT Filter
-            .addFilterBefore(
-                jwtFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
+            // Disable default login
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable());
 
         return http.build();
     }
@@ -74,9 +54,12 @@ public class SecurityConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // ✅ CHANGE THIS TO YOUR FRONTEND URL
+        // Your React URL
         config.setAllowedOrigins(
-            List.of("https://job-portal-5-cg3o.onrender.com")
+            List.of(
+                "http://localhost:3000",
+                "https://job-portal-5-cg3o.onrender.com"
+            )
         );
 
         config.setAllowedMethods(

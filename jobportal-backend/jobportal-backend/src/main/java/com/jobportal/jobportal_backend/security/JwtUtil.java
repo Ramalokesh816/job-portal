@@ -12,16 +12,18 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    // Generate strong secret key (256+ bits)
+    // FIXED SECRET (DO NOT CHANGE AFTER DEPLOY)
+    private static final String SECRET =
+            "jobportal_secret_key_123456789_very_strong";
+
     private final Key SECRET_KEY =
-            Keys.secretKeyFor(SignatureAlgorithm.HS256);
+            Keys.hmacShaKeyFor(SECRET.getBytes());
 
     // 24 hours
     private final long EXPIRATION =
             1000 * 60 * 60 * 24;
 
 
-    // Generate Token
     public String generateToken(String email) {
 
         return Jwts.builder()
@@ -33,12 +35,11 @@ public class JwtUtil {
                                         + EXPIRATION
                         )
                 )
-                .signWith(SECRET_KEY)
+                .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
                 .compact();
     }
 
 
-    // Extract Email
     public String extractEmail(String token) {
 
         return Jwts.parserBuilder()
@@ -50,7 +51,6 @@ public class JwtUtil {
     }
 
 
-    // Validate Token
     public boolean validateToken(String token) {
 
         try {
@@ -58,7 +58,6 @@ public class JwtUtil {
             return true;
 
         } catch (Exception e) {
-
             return false;
         }
     }

@@ -23,22 +23,12 @@ function Register() {
 
     try {
 
-      const res = await API.post(
-        "/api/users/register",
-        {
-          ...form,
-          role: "USER"
-        }
-      );
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(res.data)
-      );
+      await API.post("/api/users/register", form);
 
       alert("Registered Successfully ✅");
 
-      navigate("/");
+      // Go to login page (NOT profile)
+      navigate("/login");
 
     } catch (err) {
 
@@ -55,14 +45,11 @@ function Register() {
 
       <div className="login-box">
 
-
         <div className="login-left">
 
           <h2>Register</h2>
 
-
           <form onSubmit={submit}>
-
 
             <input
               type="text"
@@ -132,7 +119,6 @@ function Register() {
         <div className="login-right">
           <div className="lock-circle">🔒</div>
         </div>
-
 
       </div>
     </div>
