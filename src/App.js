@@ -59,13 +59,14 @@ function App() {
 
         {/* PROTECTED */}
         <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile setUser={setUser} />
-            </ProtectedRoute>
-          }
-        />
+  path="/apply"
+  element={
+    <ProtectedRoute>
+      <Apply />
+    </ProtectedRoute>
+  }
+/>
+
 
         <Route path="/jobs" element={<Jobs />} />
 
@@ -74,6 +75,8 @@ function App() {
         <Route path="/postjob" element={<PostJob />} />
 
         <Route path="/apply" element={<Apply />} />
+        <Route path="/profile" element={<Profile />} />
+
 
         <Route path="/admin-login" element={<AdminLogin />} />
 

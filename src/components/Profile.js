@@ -1,6 +1,13 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  useCallback
+} from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import API from "../services/api";
+
 import "./Profile.css";
 
 function Profile() {
@@ -10,17 +17,23 @@ function Profile() {
 
   /* ================= USER ================= */
 
-  const [storedUser, setStoredUser] = useState(null);
+  const [storedUser, setStoredUser] =
+    useState(null);
 
 
   /* ================= UI ================= */
 
-  const [activeTab, setActiveTab] = useState("applications");
+  const [activeTab, setActiveTab] =
+    useState("applications");
 
-  const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [applications, setApplications] =
+    useState([]);
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] =
+    useState(true);
+
+  const [isEditing, setIsEditing] =
+    useState(false);
 
 
   /* ================= PROFILE PHOTO ================= */
@@ -34,63 +47,93 @@ function Profile() {
   /* ================= USER DETAILS ================= */
 
   const [details, setDetails] = useState({
-  name: "",
-  email: "",
-  phone: ""
-});
+    name: "",
+    email: "",
+    phone: ""
+  });
 
 
   /* ================= LOAD USER ================= */
 
   useEffect(() => {
 
-    const user =
-      JSON.parse(localStorage.getItem("user"));
+    try {
 
-    if (!user) {
+      const userData =
+        localStorage.getItem("user");
+
+      if (!userData) {
+
+        navigate("/login");
+        return;
+      }
+
+      const user = JSON.parse(userData);
+
+      if (!user?.email) {
+
+        localStorage.clear();
+        navigate("/login");
+        return;
+      }
+
+      setStoredUser(user);
+
+      setDetails({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || ""
+      });
+
+    } catch {
+
+      localStorage.clear();
       navigate("/login");
-      return;
     }
-
-    setStoredUser(user);
-
-    setDetails({
-  name: user.name,
-  email: user.email,
-  phone: user.phone
-});
-
 
   }, [navigate]);
 
 
   /* ================= FETCH APPLICATIONS ================= */
 
-  useEffect(() => {
+  const loadApplications = useCallback(async () => {
 
     if (!storedUser?.email) {
       setLoading(false);
       return;
     }
 
-    setLoading(true);
+    try {
 
-    API.get(`/api/applications/user/${storedUser.email}`)
+      setLoading(true);
 
-      .then((res) => {
-        setApplications(res.data);
-      })
+      const res = await API.get(
+        `/api/applications/user/${storedUser.email}`
+      );
 
-      .catch((err) => {
-        console.log("Fetch error:", err);
-        setApplications([]);
-      })
+      setApplications(res.data || []);
 
-      .finally(() => {
-        setLoading(false);
-      });
+    } catch (err) {
+
+      console.log("Fetch error:", err);
+
+      setApplications([]);
+
+    } finally {
+
+      setLoading(false);
+    }
 
   }, [storedUser]);
+
+
+  useEffect(() => {
+
+    if (storedUser) {
+      loadApplications();
+    }
+
+  }, [storedUser, loadApplications]);
 
 
   /* ================= UPLOAD PHOTO ================= */
@@ -98,13 +141,18 @@ function Profile() {
   const handlePhotoChange = (e) => {
 
     const file = e.target.files[0];
+
     if (!file) return;
 
     const reader = new FileReader();
 
     reader.onloadend = () => {
 
-      localStorage.setItem("profilePhoto", reader.result);
+      localStorage.setItem(
+        "profilePhoto",
+        reader.result
+      );
+
       setPhoto(reader.result);
 
     };
@@ -137,7 +185,7 @@ function Profile() {
 
       setIsEditing(false);
 
-      alert("Profile updated successfully ✅");
+      alert("Profile updated ✅");
 
     } catch (err) {
 
@@ -154,17 +202,20 @@ function Profile() {
   /* ================= LOGOUT ================= */
 
   const logout = () => {
-  localStorage.removeItem("user");
-  navigate("/login");
-};
+
+    localStorage.clear();
+
+    navigate("/login");
+  };
 
 
   /* ================= DELETE APPLICATION ================= */
 
   const deleteApplication = async (id) => {
 
-    if (!window.confirm("Cancel this application?"))
-      return;
+    if (!window.confirm(
+      "Cancel this application?"
+    )) return;
 
     try {
 
@@ -172,15 +223,13 @@ function Profile() {
         `/api/applications/${id}`
       );
 
-      setApplications(prev =>
-        prev.filter(app => app._id !== id)
-      );
+      alert("Application cancelled ✅");
 
-      alert("Application cancelled ❌");
+      loadApplications();
 
     } catch (err) {
 
-      console.log("Delete error:", err);
+      console.log(err);
 
       alert("Failed to cancel ❌");
     }
@@ -190,6 +239,7 @@ function Profile() {
   /* ================= LOADING ================= */
 
   if (!storedUser) {
+
     return (
       <p style={{ textAlign: "center" }}>
         Loading...
@@ -347,7 +397,6 @@ function Profile() {
 
           </>
         )}
-
 
 
         {/* ===== DETAILS TAB ===== */}
