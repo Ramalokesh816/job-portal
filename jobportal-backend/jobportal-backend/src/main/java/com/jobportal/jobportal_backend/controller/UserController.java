@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,119 +32,170 @@ public class UserController {
             new BCryptPasswordEncoder();
 
 
-    // ===== REGISTER =====
-   @PostMapping("/register")
-public ResponseEntity<?> register(@RequestBody User user) {
+    /* ================= REGISTER ================= */
 
-    if (user.getEmail() == null || user.getPassword() == null) {
+    @PostMapping("/register")
+    public ResponseEntity<?> register(
+            @RequestBody User user) {
 
-        return ResponseEntity.badRequest()
-                .body(Map.of("message", "Missing fields"));
-    }
+        if (user.getEmail() == null ||
+            user.getPassword() == null) {
 
-    Optional<User> existing =
-            userRepository.findByEmail(user.getEmail());
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                        "message",
+                        "Missing fields"
+                    ));
+        }
 
-    if (existing.isPresent()) {
+        if (userRepository
+                .findByEmail(user.getEmail())
+                .isPresent()) {
 
-        return ResponseEntity.badRequest()
-                .body(Map.of(
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
                         "message",
                         "Email already exists"
-                ));
+                    ));
+        }
+
+        user.setPassword(
+                encoder.encode(
+                        user.getPassword()
+                )
+        );
+
+        user.setRole("USER");
+        user.setProvider("local");
+
+        User saved =
+                userRepository.save(user);
+
+        return ResponseEntity.ok(saved);
     }
 
-    user.setPassword(
-            encoder.encode(user.getPassword())
-    );
 
-    user.setRole("USER");
-    user.setProvider("local");
+    /* ================= LOGIN ================= */
 
-    User saved = userRepository.save(user);
-
-    return ResponseEntity.ok(saved);
-}
-
-
-    // ===== LOGIN =====
     @PostMapping("/login")
     public ResponseEntity<?> login(
             @RequestBody User loginUser) {
 
-        Optional<User> optionalUser =
+        Optional<User> optional =
                 userRepository.findByEmail(
                         loginUser.getEmail()
                 );
 
-        if (optionalUser.isEmpty()) {
+        if (optional.isEmpty()) {
 
             return ResponseEntity.status(401)
-                    .body(Map.of("message",
-                            "User not found"));
+                    .body(Map.of(
+                        "message",
+                        "User not found"
+                    ));
         }
 
-        User user = optionalUser.get();
+        User user = optional.get();
 
-        // Check encrypted password
         if (!encoder.matches(
                 loginUser.getPassword(),
                 user.getPassword())) {
 
             return ResponseEntity.status(401)
-                    .body(Map.of("message",
-                            "Wrong password"));
+                    .body(Map.of(
+                        "message",
+                        "Wrong password"
+                    ));
         }
 
         String token =
                 jwtUtil.generateToken(
-                        user.getEmail());
+                        user.getEmail()
+                );
 
         return ResponseEntity.ok(
                 Map.of(
-                        "token", token,
-                        "user", user
+                    "token", token,
+                    "user", user
                 )
         );
     }
 
 
-    // ===== GOOGLE LOGIN =====
+    /* ================= UPDATE ================= */
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUser(
+            @RequestBody User updated) {
+
+        Optional<User> optional =
+                userRepository.findByEmail(
+                        updated.getEmail()
+                );
+
+        if (optional.isEmpty()) {
+
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                        "message",
+                        "User not found"
+                    ));
+        }
+
+        User user = optional.get();
+
+        user.setName(updated.getName());
+        user.setPhone(updated.getPhone());
+
+        User saved =
+                userRepository.save(user);
+
+        return ResponseEntity.ok(saved);
+    }
+
+
+    /* ================= GOOGLE ================= */
+
     @PostMapping("/google-login")
     public ResponseEntity<?> googleLogin(
             @RequestBody User googleUser) {
 
-        Optional<User> optionalUser =
+        Optional<User> optional =
                 userRepository.findByEmail(
-                        googleUser.getEmail());
+                        googleUser.getEmail()
+                );
 
         User user;
 
-        if (optionalUser.isPresent()) {
+        if (optional.isPresent()) {
 
-            user = optionalUser.get();
+            user = optional.get();
 
         } else {
 
             user = new User();
 
-            user.setName(googleUser.getName());
-            user.setEmail(googleUser.getEmail());
+            user.setName(
+                    googleUser.getName());
+            user.setEmail(
+                    googleUser.getEmail());
             user.setRole("USER");
             user.setProvider("google");
             user.setPassword("GOOGLE_USER");
 
-            user = userRepository.save(user);
+            user =
+                    userRepository.save(user);
         }
 
         String token =
                 jwtUtil.generateToken(
-                        user.getEmail());
+                        user.getEmail()
+                );
 
         return ResponseEntity.ok(
                 Map.of(
-                        "token", token,
-                        "user", user
+                    "token", token,
+                    "user", user
                 )
         );
     }

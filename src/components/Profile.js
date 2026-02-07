@@ -213,31 +213,25 @@ function Profile() {
 
   const deleteApplication = async (id) => {
 
-    if (!window.confirm(
-      "Cancel this application?"
-    )) return;
+  if (!window.confirm("Cancel?")) return;
 
-    try {
+  try {
 
-      await API.delete(`/api/applications/${id}`);
+    await API.delete(
+      `/api/applications/${id}`
+    );
 
-alert("Application cancelled ✅");
+    setApplications(prev =>
+      prev.filter(app => app._id !== id)
+    );
 
-// Remove from UI immediately
-setApplications(prev =>
-  prev.filter(app => app._id !== id)
-);
+    alert("Cancelled ✅");
 
-    
+  } catch {
 
-    } catch (err) {
-
-      console.log(err);
-
-      alert("Failed to cancel ❌");
-    }
-  };
-
+    alert("Failed ❌");
+  }
+};
 
   /* ================= LOADING ================= */
 

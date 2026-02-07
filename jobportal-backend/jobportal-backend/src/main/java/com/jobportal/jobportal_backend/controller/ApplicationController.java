@@ -31,10 +31,7 @@ import com.jobportal.jobportal_backend.service.EmailService;
 
 @RestController
 @RequestMapping("/api/applications")
-@CrossOrigin(origins = {
-    "http://localhost:3000",
-    "https://job-portal-5-cg3o.onrender.com"
-})
+@CrossOrigin(origins = "*")
 public class ApplicationController {
 
     private final ApplicationRepository applicationRepository;
@@ -53,34 +50,33 @@ public class ApplicationController {
     }
 
 
-    /* ================= APPLY JOB ================= */
+    /* ================= APPLY ================= */
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public ResponseEntity<?> applyJob(
 
-        @RequestParam("fullName") String fullName,
-        @RequestParam("experience") String experience,
-        @RequestParam("skills") String skills,
-        @RequestParam("jobTitle") String jobTitle,
-        @RequestParam("userEmail") String userEmail,
-        @RequestParam("resume") MultipartFile resume
+        @RequestParam String fullName,
+        @RequestParam String experience,
+        @RequestParam String skills,
+        @RequestParam String jobTitle,
+        @RequestParam String userEmail,
+        @RequestParam MultipartFile resume
 
     ) throws Exception {
 
-
-        /* ===== UPLOAD FOLDER ===== */
-
-        Path uploadPath = Paths.get("uploads");
+        Path uploadPath =
+                Paths.get("uploads");
 
         if (!Files.exists(uploadPath)) {
+
             Files.createDirectories(uploadPath);
         }
 
-
-        /* ===== SAVE FILE ===== */
-
         String fileName =
-            System.currentTimeMillis() + "_" +
+            System.currentTimeMillis() +
+            "_" +
             resume.getOriginalFilename();
 
         Files.copy(
@@ -88,9 +84,6 @@ public class ApplicationController {
             uploadPath.resolve(fileName),
             StandardCopyOption.REPLACE_EXISTING
         );
-
-
-        /* ===== SAVE APPLICATION ===== */
 
         Application app = new Application();
 
@@ -101,16 +94,13 @@ public class ApplicationController {
         app.setUserEmail(userEmail);
         app.setAppliedAt(new Date());
         app.setResume(fileName);
-
-        // Not verified yet
         app.setVerified(false);
 
         applicationRepository.save(app);
 
 
-        /* ===== CREATE TOKEN ===== */
-
-        String token = UUID.randomUUID().toString();
+        String token =
+                UUID.randomUUID().toString();
 
         EmailVerificationToken verify =
                 new EmailVerificationToken();
@@ -123,33 +113,25 @@ public class ApplicationController {
         tokenRepository.save(verify);
 
 
-        /* ===== SEND EMAIL (FIXED LINK) ===== */
-
-        // CHANGE THIS TO YOUR BACKEND URL
         String link =
-            "https://job-portal-4-ohxr.onrender.com"
-            + "/api/applications/verify?token="
-            + token;
+            "https://job-portal-4-ohxr.onrender.com" +
+            "/api/applications/verify?token=" +
+            token;
 
         emailService.sendVerificationMail(
-            userEmail,
-            link
-        );
+                userEmail, link);
 
 
         return ResponseEntity.ok(
-            Map.of(
-                "message",
-                "Application submitted. Check email to verify 📩"
-            )
+            Map.of("message", "Submitted")
         );
     }
 
 
-    /* ================= VERIFY EMAIL ================= */
+    /* ================= VERIFY ================= */
 
     @GetMapping("/verify")
-    public ResponseEntity<?> verifyEmail(
+    public ResponseEntity<?> verify(
             @RequestParam String token) {
 
         Optional<EmailVerificationToken> optional =
@@ -158,7 +140,7 @@ public class ApplicationController {
         if (optional.isEmpty()) {
 
             return ResponseEntity.badRequest()
-                    .body("Invalid verification link ❌");
+                    .body("Invalid link");
         }
 
         EmailVerificationToken verify =
@@ -169,59 +151,52 @@ public class ApplicationController {
         tokenRepository.save(verify);
 
 
-        // Update Application
         List<Application> apps =
-            applicationRepository.findByUserEmail(
-                    verify.getEmail()
-            );
+            applicationRepository
+              .findByUserEmail(
+                verify.getEmail()
+              );
 
         if (!apps.isEmpty()) {
 
             Application app =
-                    apps.get(apps.size() - 1);
+                apps.get(apps.size() - 1);
 
             app.setVerified(true);
 
             applicationRepository.save(app);
         }
 
-
-        return ResponseEntity.ok(
-            "Email Verified ✅ Application Confirmed"
-        );
+        return ResponseEntity.ok("Verified");
     }
 
 
-    /* ================= GET USER APPLICATIONS ================= */
+    /* ================= GET ================= */
 
     @GetMapping("/user/{email}")
-    public List<Application> getByUserEmail(
-        @PathVariable String email
-    ) {
+    public List<Application> getUserApps(
+            @PathVariable String email) {
 
-        return applicationRepository.findByUserEmail(email);
+        return applicationRepository
+                .findByUserEmail(email);
     }
 
 
     /* ================= DELETE ================= */
 
     @DeleteMapping("/{id}")
-public ResponseEntity<?> deleteApplication(
-    @PathVariable String id
-) {
+    public ResponseEntity<?> deleteApp(
+            @PathVariable String id) {
 
-    if (!applicationRepository.existsById(id)) {
+        if (!applicationRepository
+                .existsById(id)) {
 
-        return ResponseEntity.badRequest()
-            .body(Map.of("message", "Not found"));
+            return ResponseEntity.badRequest()
+                    .body("Not found");
+        }
+
+        applicationRepository.deleteById(id);
+
+        return ResponseEntity.ok("Deleted");
     }
-
-    applicationRepository.deleteById(id);
-
-    return ResponseEntity.ok(
-        Map.of("message", "Deleted")
-    );
-}
-
-
 }

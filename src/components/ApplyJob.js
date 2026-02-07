@@ -10,67 +10,49 @@ function Apply() {
   const { state: job } = useLocation();
   const navigate = useNavigate();
 
-
-  // Logged in user
   const user =
     JSON.parse(localStorage.getItem("user"));
 
 
-  // Form Data
-  const [formData, setFormData] = useState({
-    fullName: "",
-    experience: "",
-    skills: "",
-    resume: null
-  });
+  const [formData, setFormData] =
+    useState({
+      fullName: "",
+      experience: "",
+      skills: "",
+      resume: null
+    });
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
 
-  // No job selected
   if (!job || !job.title) {
 
-    return (
-      <h2 style={{ textAlign: "center" }}>
-        No Job Selected
-      </h2>
-    );
+    return <h2>No Job Selected</h2>;
   }
 
-
-  /* ================= SUBMIT FORM ================= */
 
   const submit = async (e) => {
 
     e.preventDefault();
 
+    if (!user?.email) {
 
-    // Check login
-    if (!user || !user.email) {
-
-      alert("Please login first ❗");
-
+      alert("Login first");
       navigate("/login");
-
       return;
     }
 
-
-    // Check resume
     if (!formData.resume) {
 
-      alert("Please upload your resume ❗");
-
+      alert("Upload resume");
       return;
     }
-
 
     setLoading(true);
 
-
     try {
 
-      // Prepare multipart data
       const data = new FormData();
 
       data.append("fullName", formData.fullName);
@@ -81,38 +63,34 @@ function Apply() {
       data.append("resume", formData.resume);
 
 
-      // Send to backend (CORRECT URL)
-      await API.post(
+      const res = await API.post(
         "/api/applications",
         data,
         {
           headers: {
-            "Content-Type": "multipart/form-data"
+            "Content-Type":
+              "multipart/form-data"
           }
         }
       );
 
+      if (res.status === 200) {
 
-      alert("Job Applied Successfully ✅");
+        alert("Applied ✅");
 
-      // Redirect to profile
-      navigate("/profile");
+        navigate("/profile");
 
+      }
 
     } catch (err) {
 
-      console.log("Apply Error:", err);
+      console.log(err);
 
-      alert(
-        err.response?.data?.message ||
-        "Failed to apply ❌"
-      );
-
+      alert("Failed ❌");
 
     } finally {
 
       setLoading(false);
-
     }
   };
 
@@ -121,31 +99,14 @@ function Apply() {
     <div className="apply-container">
 
       <form
-        className="apply animate"
+        className="apply"
         onSubmit={submit}
       >
 
         <h2>Apply for {job.title}</h2>
 
 
-        {/* JOB REQUIREMENTS */}
-        <div className="requirements">
-
-          <h4>Job Requirements</h4>
-
-          <ul>
-            <li>✔ Good communication skills</li>
-            <li>✔ Basic technical knowledge</li>
-            <li>✔ Team work ability</li>
-            <li>✔ Willingness to learn</li>
-          </ul>
-
-        </div>
-
-
-        {/* FULL NAME */}
         <input
-          type="text"
           placeholder="Full Name"
           required
           value={formData.fullName}
@@ -158,10 +119,8 @@ function Apply() {
         />
 
 
-        {/* EXPERIENCE */}
         <input
-          type="text"
-          placeholder="Experience (Eg: 2 Years)"
+          placeholder="Experience"
           required
           value={formData.experience}
           onChange={(e) =>
@@ -173,9 +132,8 @@ function Apply() {
         />
 
 
-        {/* SKILLS */}
         <textarea
-          placeholder="Skills (React, Java, SQL...)"
+          placeholder="Skills"
           required
           value={formData.skills}
           onChange={(e) =>
@@ -187,34 +145,22 @@ function Apply() {
         />
 
 
-        {/* RESUME */}
-        <div className="resume-upload">
-
-          <label>Upload Resume (PDF/DOC)</label>
-
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            required
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                resume: e.target.files[0]
-              })
-            }
-          />
-
-        </div>
+        <input
+          type="file"
+          required
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              resume: e.target.files[0]
+            })
+          }
+        />
 
 
-        {/* SUBMIT BUTTON */}
-        <button
-          type="submit"
-          disabled={loading}
-        >
+        <button disabled={loading}>
           {loading
             ? "Submitting..."
-            : "Submit Application"}
+            : "Submit"}
         </button>
 
       </form>
