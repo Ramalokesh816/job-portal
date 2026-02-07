@@ -219,13 +219,16 @@ function Profile() {
 
     try {
 
-      await API.delete(
-        `/api/applications/${id}`
-      );
+      await API.delete(`/api/applications/${id}`);
 
-      alert("Application cancelled ✅");
+alert("Application cancelled ✅");
 
-      loadApplications();
+// Remove from UI immediately
+setApplications(prev =>
+  prev.filter(app => app._id !== id)
+);
+
+    
 
     } catch (err) {
 

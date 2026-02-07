@@ -206,15 +206,22 @@ public class ApplicationController {
     /* ================= DELETE ================= */
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteApplication(
-        @PathVariable String id
-    ) {
+public ResponseEntity<?> deleteApplication(
+    @PathVariable String id
+) {
 
-        applicationRepository.deleteById(id);
+    if (!applicationRepository.existsById(id)) {
 
-        return ResponseEntity.ok(
-            Map.of("message", "Deleted Successfully ✅")
-        );
+        return ResponseEntity.badRequest()
+            .body(Map.of("message", "Not found"));
     }
+
+    applicationRepository.deleteById(id);
+
+    return ResponseEntity.ok(
+        Map.of("message", "Deleted")
+    );
+}
+
 
 }

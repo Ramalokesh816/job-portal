@@ -1,6 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+
 import API from "../services/api";
+
 import "./ApplyJob.css";
 
 function Apply() {
@@ -8,8 +10,10 @@ function Apply() {
   const { state: job } = useLocation();
   const navigate = useNavigate();
 
+
   // Logged in user
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user =
+    JSON.parse(localStorage.getItem("user"));
 
 
   // Form Data
@@ -24,30 +28,45 @@ function Apply() {
 
 
   // No job selected
-  if (!job) {
-    return <h2>No Job Selected</h2>;
+  if (!job || !job.title) {
+
+    return (
+      <h2 style={{ textAlign: "center" }}>
+        No Job Selected
+      </h2>
+    );
   }
 
 
   /* ================= SUBMIT FORM ================= */
 
   const submit = async (e) => {
+
     e.preventDefault();
+
 
     // Check login
     if (!user || !user.email) {
+
       alert("Please login first ❗");
+
       navigate("/login");
+
       return;
     }
+
 
     // Check resume
     if (!formData.resume) {
+
       alert("Please upload your resume ❗");
+
       return;
     }
 
+
     setLoading(true);
+
 
     try {
 
@@ -59,16 +78,19 @@ function Apply() {
       data.append("skills", formData.skills);
       data.append("jobTitle", job.title);
       data.append("userEmail", user.email);
-      data.append("appliedAt", new Date().toISOString());
       data.append("resume", formData.resume);
 
 
-      // Send to backend
-      await API.post("/api/applications", data, {
-        headers: {
-          "Content-Type": "multipart/form-data"
+      // Send to backend (CORRECT URL)
+      await API.post(
+        "/api/applications",
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
         }
-      });
+      );
 
 
       alert("Job Applied Successfully ✅");
@@ -76,10 +98,16 @@ function Apply() {
       // Redirect to profile
       navigate("/profile");
 
+
     } catch (err) {
 
       console.log("Apply Error:", err);
-      alert("Failed to apply ❌");
+
+      alert(
+        err.response?.data?.message ||
+        "Failed to apply ❌"
+      );
+
 
     } finally {
 
@@ -184,7 +212,9 @@ function Apply() {
           type="submit"
           disabled={loading}
         >
-          {loading ? "Submitting..." : "Submit Application"}
+          {loading
+            ? "Submitting..."
+            : "Submit Application"}
         </button>
 
       </form>
