@@ -7,8 +7,6 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.MediaType;
@@ -42,8 +40,8 @@ public class ApplicationController {
     public ApplicationController(
             ApplicationRepository applicationRepository,
             EmailTokenRepository tokenRepository,
-            EmailService emailService
-    ) {
+            EmailService emailService) {
+
         this.applicationRepository = applicationRepository;
         this.tokenRepository = tokenRepository;
         this.emailService = emailService;
@@ -55,7 +53,7 @@ public class ApplicationController {
     @PostMapping(
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public ResponseEntity<?> applyJob(
+    public ResponseEntity<?> apply(
 
         @RequestParam String fullName,
         @RequestParam String experience,
@@ -66,12 +64,12 @@ public class ApplicationController {
 
     ) throws Exception {
 
-        Path uploadPath =
+        Path upload =
                 Paths.get("uploads");
 
-        if (!Files.exists(uploadPath)) {
+        if (!Files.exists(upload)) {
 
-            Files.createDirectories(uploadPath);
+            Files.createDirectories(upload);
         }
 
         String fileName =
@@ -81,9 +79,10 @@ public class ApplicationController {
 
         Files.copy(
             resume.getInputStream(),
-            uploadPath.resolve(fileName),
+            upload.resolve(fileName),
             StandardCopyOption.REPLACE_EXISTING
         );
+
 
         Application app = new Application();
 
@@ -96,7 +95,8 @@ public class ApplicationController {
         app.setResume(fileName);
         app.setVerified(false);
 
-        applicationRepository.save(app);
+        Application saved =
+                applicationRepository.save(app);
 
 
         String token =
@@ -122,52 +122,7 @@ public class ApplicationController {
                 userEmail, link);
 
 
-        return ResponseEntity.ok(
-            Map.of("message", "Submitted")
-        );
-    }
-
-
-    /* ================= VERIFY ================= */
-
-    @GetMapping("/verify")
-    public ResponseEntity<?> verify(
-            @RequestParam String token) {
-
-        Optional<EmailVerificationToken> optional =
-                tokenRepository.findByToken(token);
-
-        if (optional.isEmpty()) {
-
-            return ResponseEntity.badRequest()
-                    .body("Invalid link");
-        }
-
-        EmailVerificationToken verify =
-                optional.get();
-
-        verify.setVerified(true);
-
-        tokenRepository.save(verify);
-
-
-        List<Application> apps =
-            applicationRepository
-              .findByUserEmail(
-                verify.getEmail()
-              );
-
-        if (!apps.isEmpty()) {
-
-            Application app =
-                apps.get(apps.size() - 1);
-
-            app.setVerified(true);
-
-            applicationRepository.save(app);
-        }
-
-        return ResponseEntity.ok("Verified");
+        return ResponseEntity.ok(saved);
     }
 
 
@@ -185,7 +140,7 @@ public class ApplicationController {
     /* ================= DELETE ================= */
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteApp(
+    public ResponseEntity<?> delete(
             @PathVariable String id) {
 
         if (!applicationRepository

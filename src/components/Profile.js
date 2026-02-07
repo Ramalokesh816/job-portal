@@ -99,6 +99,7 @@ function Profile() {
   const loadApplications = useCallback(async () => {
 
     if (!storedUser?.email) {
+
       setLoading(false);
       return;
     }
@@ -213,25 +214,40 @@ function Profile() {
 
   const deleteApplication = async (id) => {
 
-  if (!window.confirm("Cancel?")) return;
+    if (!id) {
 
-  try {
+      alert("Invalid application ID ❌");
+      return;
+    }
 
-    await API.delete(
-      `/api/applications/${id}`
-    );
+    if (!window.confirm(
+      "Cancel this application?"
+    )) return;
 
-    setApplications(prev =>
-      prev.filter(app => app._id !== id)
-    );
 
-    alert("Cancelled ✅");
+    try {
 
-  } catch {
+      await API.delete(
+        `/api/applications/${id}`
+      );
 
-    alert("Failed ❌");
-  }
-};
+      // Remove from UI instantly
+      setApplications(prev =>
+        prev.filter(
+          app => (app._id || app.id) !== id
+        )
+      );
+
+      alert("Application cancelled ✅");
+
+    } catch (err) {
+
+      console.log(err);
+
+      alert("Cancel failed ❌");
+    }
+  };
+
 
   /* ================= LOADING ================= */
 
@@ -344,7 +360,7 @@ function Profile() {
                 {applications.map((app) => (
 
                   <div
-                    key={app._id}
+                    key={app._id || app.id}
                     className="app-card"
                   >
 
@@ -377,7 +393,7 @@ function Profile() {
                       className="delete-btn"
                       onClick={() =>
                         deleteApplication(
-                          app._id
+                          app._id || app.id
                         )
                       }
                     >
@@ -449,19 +465,7 @@ function Profile() {
 
               <b>Email:</b>{" "}
 
-              {isEditing ? (
-
-                <input
-                  value={details.email}
-                  onChange={(e) =>
-                    setDetails({
-                      ...details,
-                      email: e.target.value
-                    })
-                  }
-                />
-
-              ) : details.email}
+              {details.email}
 
             </p>
 

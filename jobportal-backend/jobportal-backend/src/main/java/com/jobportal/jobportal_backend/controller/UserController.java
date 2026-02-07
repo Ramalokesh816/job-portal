@@ -42,10 +42,8 @@ public class UserController {
             user.getPassword() == null) {
 
             return ResponseEntity.badRequest()
-                    .body(Map.of(
-                        "message",
-                        "Missing fields"
-                    ));
+                    .body(Map.of("message",
+                            "Missing fields"));
         }
 
         if (userRepository
@@ -53,16 +51,12 @@ public class UserController {
                 .isPresent()) {
 
             return ResponseEntity.badRequest()
-                    .body(Map.of(
-                        "message",
-                        "Email already exists"
-                    ));
+                    .body(Map.of("message",
+                            "Email already exists"));
         }
 
         user.setPassword(
-                encoder.encode(
-                        user.getPassword()
-                )
+                encoder.encode(user.getPassword())
         );
 
         user.setRole("USER");
@@ -83,16 +77,13 @@ public class UserController {
 
         Optional<User> optional =
                 userRepository.findByEmail(
-                        loginUser.getEmail()
-                );
+                        loginUser.getEmail());
 
         if (optional.isEmpty()) {
 
             return ResponseEntity.status(401)
-                    .body(Map.of(
-                        "message",
-                        "User not found"
-                    ));
+                    .body(Map.of("message",
+                            "User not found"));
         }
 
         User user = optional.get();
@@ -102,23 +93,17 @@ public class UserController {
                 user.getPassword())) {
 
             return ResponseEntity.status(401)
-                    .body(Map.of(
-                        "message",
-                        "Wrong password"
-                    ));
+                    .body(Map.of("message",
+                            "Wrong password"));
         }
 
         String token =
                 jwtUtil.generateToken(
-                        user.getEmail()
-                );
+                        user.getEmail());
 
         return ResponseEntity.ok(
-                Map.of(
-                    "token", token,
-                    "user", user
-                )
-        );
+                Map.of("token", token,
+                       "user", user));
     }
 
 
@@ -130,16 +115,13 @@ public class UserController {
 
         Optional<User> optional =
                 userRepository.findByEmail(
-                        updated.getEmail()
-                );
+                        updated.getEmail());
 
         if (optional.isEmpty()) {
 
             return ResponseEntity.badRequest()
-                    .body(Map.of(
-                        "message",
-                        "User not found"
-                    ));
+                    .body(Map.of("message",
+                            "User not found"));
         }
 
         User user = optional.get();
@@ -151,52 +133,5 @@ public class UserController {
                 userRepository.save(user);
 
         return ResponseEntity.ok(saved);
-    }
-
-
-    /* ================= GOOGLE ================= */
-
-    @PostMapping("/google-login")
-    public ResponseEntity<?> googleLogin(
-            @RequestBody User googleUser) {
-
-        Optional<User> optional =
-                userRepository.findByEmail(
-                        googleUser.getEmail()
-                );
-
-        User user;
-
-        if (optional.isPresent()) {
-
-            user = optional.get();
-
-        } else {
-
-            user = new User();
-
-            user.setName(
-                    googleUser.getName());
-            user.setEmail(
-                    googleUser.getEmail());
-            user.setRole("USER");
-            user.setProvider("google");
-            user.setPassword("GOOGLE_USER");
-
-            user =
-                    userRepository.save(user);
-        }
-
-        String token =
-                jwtUtil.generateToken(
-                        user.getEmail()
-                );
-
-        return ResponseEntity.ok(
-                Map.of(
-                    "token", token,
-                    "user", user
-                )
-        );
     }
 }

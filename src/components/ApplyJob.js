@@ -14,20 +14,18 @@ function Apply() {
     JSON.parse(localStorage.getItem("user"));
 
 
-  const [formData, setFormData] =
-    useState({
-      fullName: "",
-      experience: "",
-      skills: "",
-      resume: null
-    });
+  const [form, setForm] = useState({
+    fullName: "",
+    experience: "",
+    skills: "",
+    resume: null
+  });
 
   const [loading, setLoading] =
     useState(false);
 
 
   if (!job || !job.title) {
-
     return <h2>No Job Selected</h2>;
   }
 
@@ -43,7 +41,7 @@ function Apply() {
       return;
     }
 
-    if (!formData.resume) {
+    if (!form.resume) {
 
       alert("Upload resume");
       return;
@@ -51,40 +49,32 @@ function Apply() {
 
     setLoading(true);
 
+
     try {
 
       const data = new FormData();
 
-      data.append("fullName", formData.fullName);
-      data.append("experience", formData.experience);
-      data.append("skills", formData.skills);
+      data.append("fullName", form.fullName);
+      data.append("experience", form.experience);
+      data.append("skills", form.skills);
       data.append("jobTitle", job.title);
       data.append("userEmail", user.email);
-      data.append("resume", formData.resume);
+      data.append("resume", form.resume);
 
 
       const res = await API.post(
         "/api/applications",
-        data,
-        {
-          headers: {
-            "Content-Type":
-              "multipart/form-data"
-          }
-        }
+        data
       );
 
-      if (res.status === 200) {
+      if (res.data) {
 
         alert("Applied ✅");
 
         navigate("/profile");
-
       }
 
-    } catch (err) {
-
-      console.log(err);
+    } catch {
 
       alert("Failed ❌");
 
@@ -107,12 +97,11 @@ function Apply() {
 
 
         <input
-          placeholder="Full Name"
           required
-          value={formData.fullName}
+          placeholder="Full Name"
           onChange={(e) =>
-            setFormData({
-              ...formData,
+            setForm({
+              ...form,
               fullName: e.target.value
             })
           }
@@ -120,12 +109,11 @@ function Apply() {
 
 
         <input
-          placeholder="Experience"
           required
-          value={formData.experience}
+          placeholder="Experience"
           onChange={(e) =>
-            setFormData({
-              ...formData,
+            setForm({
+              ...form,
               experience: e.target.value
             })
           }
@@ -133,12 +121,11 @@ function Apply() {
 
 
         <textarea
-          placeholder="Skills"
           required
-          value={formData.skills}
+          placeholder="Skills"
           onChange={(e) =>
-            setFormData({
-              ...formData,
+            setForm({
+              ...form,
               skills: e.target.value
             })
           }
@@ -149,8 +136,8 @@ function Apply() {
           type="file"
           required
           onChange={(e) =>
-            setFormData({
-              ...formData,
+            setForm({
+              ...form,
               resume: e.target.files[0]
             })
           }
@@ -158,9 +145,7 @@ function Apply() {
 
 
         <button disabled={loading}>
-          {loading
-            ? "Submitting..."
-            : "Submit"}
+          {loading ? "Submitting..." : "Submit"}
         </button>
 
       </form>
