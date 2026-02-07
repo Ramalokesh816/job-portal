@@ -169,16 +169,87 @@ nav a:active {
     font-size: 14px;
   }
 }
+/* ========== HEADER BASE ========== */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: #0b5ed7;
+  color: white;
+  position: relative;
+}
+
+.logo {
+  margin: 0;
+}
+
+
+/* NAV LINKS */
+.nav-links {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.logout-btn {
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+
+/* HAMBURGER */
+.menu-icon {
+  display: none;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+
+/* ========== MOBILE VIEW ========== */
+
 @media (max-width: 768px) {
 
-  .header {
-    flex-direction: column;
-    padding: 10px;
+  .menu-icon {
+    display: block;
   }
 
-  .header-links {
-    flex-direction: column;
+  .nav-links {
+    display: none;
+
+    position: absolute;
+    top: 60px;
+    left: 0;
+
     width: 100%;
+    background: #0b5ed7;
+
+    flex-direction: column;
+
+    padding: 10px 0;
+
+    z-index: 1000;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-links a,
+  .logout-btn {
+    width: 100%;
+    padding: 12px;
     text-align: center;
   }
 }

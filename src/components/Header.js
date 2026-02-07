@@ -1,52 +1,117 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+
 import "./Header.css";
 
 function Header() {
 
   const [user, setUser] = useState(null);
 
+  const [menuOpen, setMenuOpen] =
+    useState(false);
 
+  const navigate = useNavigate();
+
+
+  // Load user once
   useEffect(() => {
 
-    // Function to check user
-    const checkUser = () => {
+    const stored =
+      localStorage.getItem("user");
 
-      const stored =
-        JSON.parse(localStorage.getItem("user"));
-
-      setUser(stored);
-    };
-
-    // Initial check
-    checkUser();
-
-    // Check every 500ms (lightweight)
-    const interval = setInterval(checkUser, 500);
-
-    return () => clearInterval(interval);
+    if (stored) {
+      setUser(JSON.parse(stored));
+    }
 
   }, []);
+
+
+  // Logout
+  const logout = () => {
+
+    localStorage.clear();
+
+    setUser(null);
+
+    navigate("/login");
+  };
 
 
   return (
     <header className="header">
 
-      <h2 className="logo">JobConnect</h2>
 
-      <nav>
+      {/* LOGO */}
+      <h2 className="logo">
+        JobConnect
+      </h2>
 
-        <Link to="/">Home</Link>
-        <Link to="/jobs">Jobs</Link>
-        <Link to="/employers">Employers</Link>
-        <Link to="/postjob">Post a Job</Link>
+
+      {/* HAMBURGER */}
+      <div
+        className="menu-icon"
+        onClick={() =>
+          setMenuOpen(!menuOpen)
+        }
+      >
+        ☰
+      </div>
+
+
+      {/* NAV LINKS */}
+      <nav
+        className={
+          menuOpen
+            ? "nav-links active"
+            : "nav-links"
+        }
+      >
+
+        <Link
+          to="/"
+          onClick={() => setMenuOpen(false)}
+        >
+          Home
+        </Link>
+
+        <Link
+          to="/jobs"
+          onClick={() => setMenuOpen(false)}
+        >
+          Jobs
+        </Link>
+
+        <Link
+          to="/employers"
+          onClick={() => setMenuOpen(false)}
+        >
+          Employers
+        </Link>
+
+        <Link
+          to="/postjob"
+          onClick={() => setMenuOpen(false)}
+        >
+          Post a Job
+        </Link>
 
 
         {/* NOT LOGGED IN */}
         {!user && (
           <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
+            <Link
+              to="/login"
+              onClick={() => setMenuOpen(false)}
+            >
+              Login
+            </Link>
+
+            <Link
+              to="/register"
+              onClick={() => setMenuOpen(false)}
+            >
+              Register
+            </Link>
           </>
         )}
 
@@ -54,7 +119,19 @@ function Header() {
         {/* LOGGED IN */}
         {user && (
           <>
-            <Link to="/profile">Profile</Link>
+            <Link
+              to="/profile"
+              onClick={() => setMenuOpen(false)}
+            >
+              Profile
+            </Link>
+
+            <button
+              onClick={logout}
+              className="logout-btn"
+            >
+              Logout
+            </button>
           </>
         )}
 

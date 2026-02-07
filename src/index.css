@@ -11,41 +11,94 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+/* ================= MOBILE RESPONSIVE ================= */
+
 @media (max-width: 768px) {
 
+  /* Prevent side scroll */
   body {
+    margin: 0;
+    padding: 0;
     overflow-x: hidden;
   }
 
-  .header,
-  .nav {
-    flex-direction: column;
-    text-align: center;
+  /* Containers */
+  .container,
+  .login-box,
+  .apply,
+  .profile-layout,
+  .profile-content {
+    width: 100% !important;
+    padding: 12px;
   }
 
-  .login-box {
-    width: 95%;
-    margin: auto;
-    flex-direction: column;
-  }
-
-  .hero-section {
-    flex-direction: column;
-    padding: 20px;
-    text-align: center;
-  }
-
-  .hero-section img {
+  /* Forms */
+  form {
     width: 100%;
   }
 
-  .job-card {
+  input,
+  textarea,
+  select,
+  button {
+    width: 100% !important;
+    font-size: 16px;
+  }
+
+  /* Header / Nav */
+  nav,
+  .header {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  /* Cards */
+  .job-card,
+  .app-card,
+  .profile-card {
     width: 100%;
     margin: 10px 0;
   }
 
-  button {
+  /* Profile Page */
+  .profile-layout {
+    flex-direction: column;
+  }
+
+  .profile-menu {
     width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .profile-menu ul {
+    display: flex;
+    justify-content: space-around;
+    padding: 5px;
+  }
+
+  .profile-menu li {
+    font-size: 14px;
+  }
+
+  /* Apply Page */
+  .apply-container {
+    padding: 10px;
+  }
+
+  .requirements {
+    font-size: 14px;
+  }
+
+  /* Text */
+  h1, h2, h3 {
+    text-align: center;
   }
 }
 
