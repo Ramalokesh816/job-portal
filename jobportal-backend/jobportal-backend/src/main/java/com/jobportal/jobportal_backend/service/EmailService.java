@@ -12,54 +12,61 @@ public class EmailService {
     private JavaMailSender mailSender;
 
 
-    // ================= VERIFY MAIL =================
+    /* ================= VERIFY MAIL ================= */
+
     public void sendVerificationMail(String to, String link) {
 
         String body = """
                 Dear Candidate,
 
-                Please verify your job application:
+                Please verify your job application by clicking below:
                 %s
 
                 Regards,
-                JobConnect Team""".formatted(link);
+                JobConnect Team
+                """.formatted(link);
 
-        sendMail(to, "Verify Your Job Application", body);
+        sendMail(to, "Verify Job Application", body);
     }
 
 
-    // ================= THANK YOU =================
+    /* ================= THANK YOU ================= */
+
     public void sendThankYouMail(String to) {
 
         String body = """
                 Dear Candidate,
 
-                Your application is verified successfully.
+                Your application has been verified successfully.
                 We will contact you soon.
 
                 Regards,
-                HR Team""";
+                HR Team
+                """;
 
         sendMail(to, "Application Confirmed", body);
     }
 
 
-    // ================= HR REPLY =================
-    public void sendHRReplyMail(String to, String message) {
+    /* ================= STATUS MAIL ================= */
+
+    public void sendStatusMail(String to, String status) {
 
         String body = """
                 Dear Candidate,
 
-                %s
+                Your application status: %s
 
                 Regards,
-                HR Team""".formatted(message);
+                HR Team
+                """.formatted(status);
 
-        sendMail(to, "Message from HR", body);
+        sendMail(to, "Application Status Update", body);
     }
 
 
-    // ================= INTERVIEW =================
+    /* ================= INTERVIEW MAIL ================= */
+
     public void sendInterviewMail(
             String to,
             String date,
@@ -77,47 +84,53 @@ public class EmailService {
 
                 Best of luck!
 
-                HR Team""".formatted(date, time, location);
+                HR Team
+                """.formatted(date, time, location);
 
         sendMail(to, "Interview Invitation", body);
     }
 
 
-    // ================= STATUS =================
-    public void sendStatusMail(String to, String status) {
+    /* ================= HR REPLY ================= */
+
+    public void sendHRReplyMail(String to, String message) {
 
         String body = """
                 Dear Candidate,
 
-                Your application status: %s
+                %s
 
                 Regards,
-                HR Team""".formatted(status);
+                HR Team
+                """.formatted(message);
 
-        sendMail(to, "Application Status Update", body);
+        sendMail(to, "Message from HR", body);
     }
 
 
-    // ================= COMMON =================
-    private void sendMail(String to, String subject, String body) {
+    /* ================= COMMON MAIL METHOD ================= */
 
-    try {
+    private void sendMail(
+            String to,
+            String subject,
+            String body) {
 
-        SimpleMailMessage msg = new SimpleMailMessage();
+        try {
 
-        msg.setTo(to);
-        msg.setSubject(subject);
-        msg.setText(body);
+            SimpleMailMessage msg = new SimpleMailMessage();
 
-        mailSender.send(msg);
+            msg.setTo(to);
+            msg.setSubject(subject);
+            msg.setText(body);
 
-        System.out.println("Mail sent to: " + to);
+            mailSender.send(msg);
 
-    } catch (Exception e) {
+            System.out.println("✅ Mail sent to: " + to);
 
-        System.out.println("Mail sending failed ❌");
-        e.printStackTrace();
+        } catch (Exception e) {
+
+            System.out.println("❌ Mail sending failed");
+            e.printStackTrace();
+        }
     }
-}
-
 }

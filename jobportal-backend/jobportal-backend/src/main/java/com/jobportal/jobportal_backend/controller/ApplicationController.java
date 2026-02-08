@@ -8,14 +8,12 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,9 +32,8 @@ import com.jobportal.jobportal_backend.service.EmailService;
 
 @RestController
 @RequestMapping("/api/applications")
+@CrossOrigin(origins = "*")
 public class ApplicationController {
-
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationController.class);
 
     private final ApplicationRepository applicationRepository;
     private final EmailTokenRepository tokenRepository;
@@ -69,20 +66,16 @@ public class ApplicationController {
 
         try {
 
-            /* ===== CREATE UPLOAD FOLDER ===== */
-
+            // Create uploads folder
             Path uploadPath = Paths.get("uploads");
 
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-
-            /* ===== SAVE FILE ===== */
-
+            // Save resume
             String fileName =
-                    System.currentTimeMillis() +
-                    "_" +
+                    System.currentTimeMillis() + "_" +
                     resume.getOriginalFilename();
 
             Files.copy(
@@ -91,9 +84,7 @@ public class ApplicationController {
                     StandardCopyOption.REPLACE_EXISTING
             );
 
-
-            /* ===== SAVE APPLICATION ===== */
-
+            // Save application
             Application app = new Application();
 
             app.setFullName(fullName);
@@ -104,12 +95,11 @@ public class ApplicationController {
             app.setAppliedAt(new Date());
             app.setResume(fileName);
             app.setVerified(false);
+            app.setStatus("PENDING");
 
             applicationRepository.save(app);
 
-
-            /* ===== CREATE EMAIL TOKEN ===== */
-
+            // Create token
             String token = UUID.randomUUID().toString();
 
             EmailVerificationToken verify =
@@ -122,9 +112,7 @@ public class ApplicationController {
 
             tokenRepository.save(verify);
 
-
-            /* ===== SEND EMAIL (OPTIONAL) ===== */
-
+            // Send mail
             try {
 
                 String link =
@@ -132,106 +120,77 @@ public class ApplicationController {
                         "/api/applications/verify?token=" +
                         token;
 
-                emailService.sendVerificationMail(
-                        userEmail, link);
+                emailService.sendVerificationMail(userEmail, link);
 
             } catch (Exception e) {
 
                 System.out.println("Mail error: " + e.getMessage());
             }
 
+            return ResponseEntity.ok("Application submitted ✅");
 
-            return ResponseEntity.ok(
-                    Map.of(
-                        "message",
-                        "Application submitted successfully ✅"
-                    )
-            );
+        } catch (IOException e) {
 
+            e.printStackTrace();
 
-} catch (IOException | RuntimeException e) {
-
-    logger.error("Error while processing job application", e);
-
-    return ResponseEntity.status(500)
-            .body(Map.of(
-                "message",
-                "Server error ❌"
-            ));
-}
-
+            return ResponseEntity
+                    .status(500)
+                    .body("Server error ❌");
+        }
     }
 
 
-    /* ================= VERIFY EMAIL ================= */
+    /* ================= VERIFY ================= */
 
     @GetMapping("/verify")
-public ResponseEntity<?> verifyEmail(
-        @RequestParam String token) {
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
 
-    Optional<EmailVerificationToken> optional =
-            tokenRepository.findByToken(token);
+        Optional<EmailVerificationToken> optional =
+                tokenRepository.findByToken(token);
 
-    if (optional.isEmpty()) {
+        if (optional.isEmpty()) {
 
-        return ResponseEntity.badRequest()
-                .body("Invalid verification link ❌");
-    }
+            return ResponseEntity.badRequest()
+                    .body("Invalid link ❌");
+        }
 
-    EmailVerificationToken verify =
-            optional.get();
+        EmailVerificationToken verify = optional.get();
 
+        if (verify.isVerified()) {
 
-    // Already verified
-    if (verify.isVerified()) {
+            return ResponseEntity.ok("Already verified ✅");
+        }
+
+        verify.setVerified(true);
+
+        tokenRepository.save(verify);
+
+        // Update latest app
+        List<Application> apps =
+                applicationRepository
+                        .findByUserEmail(verify.getEmail());
+
+        if (!apps.isEmpty()) {
+
+            Application app =
+                    apps.get(apps.size() - 1);
+
+            app.setVerified(true);
+            app.setStatus("PENDING");
+
+            applicationRepository.save(app);
+        }
+
+        // Thank you mail
+        emailService.sendThankYouMail(verify.getEmail());
 
         return ResponseEntity.ok(
-                "Application already verified ✅"
+                "Application confirmed ✅"
         );
     }
 
 
-    // Mark verified
-    verify.setVerified(true);
-
-    tokenRepository.save(verify);
-
-
-    // Update latest application
-    List<Application> apps =
-        applicationRepository.findByUserEmail(
-                verify.getEmail()
-        );
-
-    if (!apps.isEmpty()) {
-
-        Application app =
-                apps.get(apps.size() - 1);
-
-        app.setVerified(true);
-        app.setStatus("PENDING");
-
-
-        applicationRepository.save(app);
-    }
-
-
-    // ✅ SEND THANK YOU MAIL
-    emailService.sendThankYouMail(
-            verify.getEmail()
-    );
-
-
-    // ✅ SHOW SUCCESS PAGE
-    return ResponseEntity.ok(
-        "<h2>✅ Application Confirmed</h2>" +
-        "<p>Thank you for applying.</p>" +
-        "<p>You will receive further updates via email.</p>"
-    );
-}
-
-
-    /* ================= GET USER APPLICATIONS ================= */
+    /* ================= GET USER APPS ================= */
 
     @GetMapping("/user/{email}")
     public List<Application> getByUserEmail(
@@ -242,7 +201,7 @@ public ResponseEntity<?> verifyEmail(
     }
 
 
-    /* ================= DELETE APPLICATION ================= */
+    /* ================= DELETE ================= */
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteApplication(
@@ -251,103 +210,100 @@ public ResponseEntity<?> verifyEmail(
         if (!applicationRepository.existsById(id)) {
 
             return ResponseEntity.badRequest()
-                    .body(Map.of(
-                        "message",
-                        "Not found"
-                    ));
+                    .body("Not found ❌");
         }
 
         applicationRepository.deleteById(id);
 
-        return ResponseEntity.ok(
-                Map.of(
-                    "message",
-                    "Deleted successfully ✅"
-                ));
+        return ResponseEntity.ok("Deleted ✅");
     }
-    /* ================= Status Update ================= */
+
+
+    /* ================= STATUS ================= */
+
     @PutMapping("/status/{id}")
-public ResponseEntity<?> updateStatus(
-        @PathVariable String id,
-        @RequestParam String status) {
+    public ResponseEntity<?> updateStatus(
+            @PathVariable String id,
+            @RequestParam String status) {
 
-    Optional<Application> optional =
-            applicationRepository.findById(id);
+        Optional<Application> optional =
+                applicationRepository.findById(id);
 
-    if (optional.isEmpty()) {
+        if (optional.isEmpty()) {
 
-        return ResponseEntity.badRequest()
-                .body("Application not found");
+            return ResponseEntity.badRequest()
+                    .body("Not found ❌");
+        }
+
+        Application app = optional.get();
+
+        app.setStatus(status);
+
+        applicationRepository.save(app);
+
+        emailService.sendStatusMail(
+                app.getUserEmail(),
+                status
+        );
+
+        return ResponseEntity.ok("Status updated ✅");
     }
 
-    Application app = optional.get();
 
-    app.setStatus(status);
+    /* ================= INTERVIEW ================= */
 
-    applicationRepository.save(app);
+    @PostMapping("/interview/{id}")
+    public ResponseEntity<?> sendInterview(
+            @PathVariable String id,
+            @RequestParam String date,
+            @RequestParam String time,
+            @RequestParam String location) {
 
-    // Send status mail
-    emailService.sendStatusMail(
-            app.getUserEmail(),
-            status
-    );
+        Optional<Application> optional =
+                applicationRepository.findById(id);
 
-    return ResponseEntity.ok("Status updated");
-}
+        if (optional.isEmpty()) {
 
-/* ================= Interview ================= */
-@PostMapping("/interview/{id}")
-public ResponseEntity<?> sendInterview(
-        @PathVariable String id,
-        @RequestParam String date,
-        @RequestParam String time,
-        @RequestParam String location) {
+            return ResponseEntity.badRequest()
+                    .body("Not found ❌");
+        }
 
-    Optional<Application> optional =
-            applicationRepository.findById(id);
+        Application app = optional.get();
 
-    if (optional.isEmpty()) {
+        emailService.sendInterviewMail(
+                app.getUserEmail(),
+                date,
+                time,
+                location
+        );
 
-        return ResponseEntity.badRequest()
-                .body("Application not found");
+        return ResponseEntity.ok("Interview mail sent ✅");
     }
 
-    Application app = optional.get();
 
-    emailService.sendInterviewMail(
-            app.getUserEmail(),
-            date,
-            time,
-            location
-    );
+    /* ================= HR REPLY ================= */
 
-    return ResponseEntity.ok("Interview mail sent");
-}
-/* ================= HR Reply ================= */
+    @PostMapping("/reply/{id}")
+    public ResponseEntity<?> sendHRReply(
+            @PathVariable String id,
+            @RequestParam String message) {
 
-@PostMapping("/reply/{id}")
-public ResponseEntity<?> sendHRReply(
-        @PathVariable String id,
-        @RequestParam String message) {
+        Optional<Application> optional =
+                applicationRepository.findById(id);
 
-    Optional<Application> optional =
-            applicationRepository.findById(id);
+        if (optional.isEmpty()) {
 
-    if (optional.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body("Not found ❌");
+        }
 
-        return ResponseEntity.badRequest()
-                .body("Application not found");
+        Application app = optional.get();
+
+        emailService.sendHRReplyMail(
+                app.getUserEmail(),
+                message
+        );
+
+        return ResponseEntity.ok("Reply sent ✅");
     }
-
-    Application app = optional.get();
-
-    emailService.sendHRReplyMail(
-            app.getUserEmail(),
-            message
-    );
-
-    return ResponseEntity.ok("HR reply sent");
-}
-
-
 }
