@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jobportal.jobportal_backend.model.User;
 import com.jobportal.jobportal_backend.repository.UserRepository;
 import com.jobportal.jobportal_backend.security.JwtUtil;
+import com.jobportal.jobportal_backend.service.EmailService;
 
 @RestController
 @RequestMapping("/api/users")
@@ -25,6 +26,9 @@ public class UserController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private EmailService emailService;
 
     private final BCryptPasswordEncoder encoder =
             new BCryptPasswordEncoder();
@@ -115,6 +119,48 @@ public class UserController {
     }
 
 
+    /* ================= GOOGLE LOGIN ================= */
+
+    @PostMapping("/google-login")
+    public ResponseEntity<?> googleLogin(
+            @RequestBody User googleUser) {
+
+        Optional<User> optional =
+                userRepository.findByEmail(
+                        googleUser.getEmail());
+
+        User user;
+
+        if (optional.isPresent()) {
+
+            user = optional.get();
+
+        } else {
+
+            user = new User();
+
+            user.setName(googleUser.getName());
+            user.setEmail(googleUser.getEmail());
+            user.setRole("USER");
+            user.setProvider("google");
+            user.setPassword("GOOGLE_USER");
+
+            user = userRepository.save(user);
+        }
+
+        String token =
+                jwtUtil.generateToken(
+                        user.getEmail());
+
+        return ResponseEntity.ok(
+            Map.of(
+                "token", token,
+                "user", user
+            )
+        );
+    }
+
+
     /* ================= UPDATE PROFILE ================= */
 
     @PutMapping("/update")
@@ -144,42 +190,35 @@ public class UserController {
 
         return ResponseEntity.ok(saved);
     }
-    @PostMapping("/google-login")
-public ResponseEntity<?> googleLogin(
-        @RequestBody User googleUser) {
 
-    Optional<User> optional =
-            userRepository.findByEmail(
-                    googleUser.getEmail());
 
-    User user;
+    /* ================= TEST EMAIL ================= */
 
-    if (optional.isPresent()) {
+    @PostMapping("/test-mail")
+    public ResponseEntity<?> testMail(
+            @RequestBody Map<String, String> body) {
 
-        user = optional.get();
+        String email = body.get("email");
 
-    } else {
+        if (email == null || email.isEmpty()) {
 
-        user = new User();
+            return ResponseEntity.badRequest()
+                .body(Map.of(
+                    "message",
+                    "Email is required"
+                ));
+        }
 
-        user.setName(googleUser.getName());
-        user.setEmail(googleUser.getEmail());
-        user.setRole("USER");
-        user.setProvider("google");
-        user.setPassword("GOOGLE_USER");
+        emailService.sendVerificationMail(
+            email,
+            "https://jobconnect.com/test"
+        );
 
-        user = userRepository.save(user);
+        return ResponseEntity.ok(
+            Map.of(
+                "message",
+                "Test mail sent ✅"
+            ));
     }
 
-    String token =
-            jwtUtil.generateToken(
-                    user.getEmail());
-
-    return ResponseEntity.ok(
-        Map.of(
-            "token", token,
-            "user", user
-        )
-    );
-}
 }
