@@ -132,6 +132,46 @@ public class UserController {
         User saved =
                 userRepository.save(user);
 
-        return ResponseEntity.ok(saved);
+       
+                return ResponseEntity.ok(saved);
     }
+    @PostMapping("/google-login")
+public ResponseEntity<?> googleLogin(
+        @RequestBody User googleUser) {
+
+    Optional<User> optional =
+            userRepository.findByEmail(
+                    googleUser.getEmail());
+
+    User user;
+
+    if (optional.isPresent()) {
+
+        user = optional.get();
+
+    } else {
+
+        user = new User();
+
+        user.setName(googleUser.getName());
+        user.setEmail(googleUser.getEmail());
+        user.setRole("USER");
+        user.setProvider("google");
+        user.setPassword("GOOGLE_USER");
+
+        user = userRepository.save(user);
+    }
+
+    String token =
+            jwtUtil.generateToken(
+                    user.getEmail());
+
+    return ResponseEntity.ok(
+        Map.of(
+            "token", token,
+            "user", user
+        )
+    );
+}
+
 }

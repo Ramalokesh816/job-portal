@@ -194,20 +194,22 @@ function Profile() {
 
   const logout = () => {
 
-    const savedPhoto =
-      localStorage.getItem("profilePhoto");
+  const photo =
+    localStorage.getItem("profilePhoto");
 
-    localStorage.clear();
+  const user =
+    localStorage.getItem("user");
 
-    if (savedPhoto) {
-      localStorage.setItem(
-        "profilePhoto",
-        savedPhoto
-      );
-    }
+  localStorage.clear();
 
-    navigate("/login");
-  };
+  if (photo)
+    localStorage.setItem("profilePhoto", photo);
+
+  if (user)
+    localStorage.setItem("user", user);
+
+  navigate("/login");
+};
 
 
   /* ================= DELETE ================= */
