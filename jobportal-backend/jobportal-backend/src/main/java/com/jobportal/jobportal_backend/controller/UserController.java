@@ -42,8 +42,10 @@ public class UserController {
             user.getPassword() == null) {
 
             return ResponseEntity.badRequest()
-                    .body(Map.of("message",
-                            "Missing fields"));
+                    .body(Map.of(
+                        "message",
+                        "Missing fields"
+                    ));
         }
 
         if (userRepository
@@ -51,8 +53,10 @@ public class UserController {
                 .isPresent()) {
 
             return ResponseEntity.badRequest()
-                    .body(Map.of("message",
-                            "Email already exists"));
+                    .body(Map.of(
+                        "message",
+                        "Email already exists"
+                    ));
         }
 
         user.setPassword(
@@ -82,8 +86,10 @@ public class UserController {
         if (optional.isEmpty()) {
 
             return ResponseEntity.status(401)
-                    .body(Map.of("message",
-                            "User not found"));
+                    .body(Map.of(
+                        "message",
+                        "User not found"
+                    ));
         }
 
         User user = optional.get();
@@ -93,8 +99,10 @@ public class UserController {
                 user.getPassword())) {
 
             return ResponseEntity.status(401)
-                    .body(Map.of("message",
-                            "Wrong password"));
+                    .body(Map.of(
+                        "message",
+                        "Wrong password"
+                    ));
         }
 
         String token =
@@ -102,12 +110,14 @@ public class UserController {
                         user.getEmail());
 
         return ResponseEntity.ok(
-                Map.of("token", token,
-                       "user", user));
+                Map.of(
+                    "token", token,
+                    "user", user
+                ));
     }
 
 
-    /* ================= UPDATE ================= */
+    /* ================= UPDATE PROFILE ================= */
 
     @PutMapping("/update")
     public ResponseEntity<?> updateUser(
@@ -120,8 +130,10 @@ public class UserController {
         if (optional.isEmpty()) {
 
             return ResponseEntity.badRequest()
-                    .body(Map.of("message",
-                            "User not found"));
+                    .body(Map.of(
+                        "message",
+                        "User not found"
+                    ));
         }
 
         User user = optional.get();
@@ -132,8 +144,7 @@ public class UserController {
         User saved =
                 userRepository.save(user);
 
-       
-                return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(saved);
     }
     @PostMapping("/google-login")
 public ResponseEntity<?> googleLogin(
@@ -173,5 +184,4 @@ public ResponseEntity<?> googleLogin(
         )
     );
 }
-
 }

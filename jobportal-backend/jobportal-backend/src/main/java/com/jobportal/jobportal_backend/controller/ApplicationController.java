@@ -1,137 +1,244 @@
 package com.jobportal.jobportal_backend.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.jobportal.jobportal_backend.model.User;
-import com.jobportal.jobportal_backend.repository.UserRepository;
-import com.jobportal.jobportal_backend.security.JwtUtil;
+import com.jobportal.jobportal_backend.model.Application;
+import com.jobportal.jobportal_backend.model.EmailVerificationToken;
+import com.jobportal.jobportal_backend.repository.ApplicationRepository;
+import com.jobportal.jobportal_backend.repository.EmailTokenRepository;
+import com.jobportal.jobportal_backend.service.EmailService;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/applications")
 @CrossOrigin(origins = "*")
 public class ApplicationController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationController.class);
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final ApplicationRepository applicationRepository;
+    private final EmailTokenRepository tokenRepository;
+    private final EmailService emailService;
 
-    private final BCryptPasswordEncoder encoder =
-            new BCryptPasswordEncoder();
+    public ApplicationController(
+            ApplicationRepository applicationRepository,
+            EmailTokenRepository tokenRepository,
+            EmailService emailService) {
 
-
-    /* ================= REGISTER ================= */
-
-    @PostMapping("/register")
-    public ResponseEntity<?> register(
-            @RequestBody User user) {
-
-        if (user.getEmail() == null ||
-            user.getPassword() == null) {
-
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message",
-                            "Missing fields"));
-        }
-
-        if (userRepository
-                .findByEmail(user.getEmail())
-                .isPresent()) {
-
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message",
-                            "Email already exists"));
-        }
-
-        user.setPassword(
-                encoder.encode(user.getPassword())
-        );
-
-        user.setRole("USER");
-        user.setProvider("local");
-
-        User saved =
-                userRepository.save(user);
-
-        return ResponseEntity.ok(saved);
+        this.applicationRepository = applicationRepository;
+        this.tokenRepository = tokenRepository;
+        this.emailService = emailService;
     }
 
 
-    /* ================= LOGIN ================= */
+    /* ================= APPLY JOB ================= */
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(
-            @RequestBody User loginUser) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> applyJob(
 
-        Optional<User> optional =
-                userRepository.findByEmail(
-                        loginUser.getEmail());
+            @RequestParam String fullName,
+            @RequestParam String experience,
+            @RequestParam String skills,
+            @RequestParam String jobTitle,
+            @RequestParam String userEmail,
+            @RequestParam MultipartFile resume
+
+    ) {
+
+        try {
+
+            /* ===== CREATE UPLOAD FOLDER ===== */
+
+            Path uploadPath = Paths.get("uploads");
+
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+
+            /* ===== SAVE FILE ===== */
+
+            String fileName =
+                    System.currentTimeMillis() +
+                    "_" +
+                    resume.getOriginalFilename();
+
+            Files.copy(
+                    resume.getInputStream(),
+                    uploadPath.resolve(fileName),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+
+
+            /* ===== SAVE APPLICATION ===== */
+
+            Application app = new Application();
+
+            app.setFullName(fullName);
+            app.setExperience(experience);
+            app.setSkills(skills);
+            app.setJobTitle(jobTitle);
+            app.setUserEmail(userEmail);
+            app.setAppliedAt(new Date());
+            app.setResume(fileName);
+            app.setVerified(false);
+
+            applicationRepository.save(app);
+
+
+            /* ===== CREATE EMAIL TOKEN ===== */
+
+            String token = UUID.randomUUID().toString();
+
+            EmailVerificationToken verify =
+                    new EmailVerificationToken();
+
+            verify.setEmail(userEmail);
+            verify.setToken(token);
+            verify.setVerified(false);
+            verify.setCreatedAt(LocalDateTime.now());
+
+            tokenRepository.save(verify);
+
+
+            /* ===== SEND EMAIL (OPTIONAL) ===== */
+
+            try {
+
+                String link =
+                        "https://job-portal-4-ohxr.onrender.com" +
+                        "/api/applications/verify?token=" +
+                        token;
+
+                emailService.sendVerificationMail(
+                        userEmail, link);
+
+            } catch (Exception e) {
+
+                System.out.println("Mail error: " + e.getMessage());
+            }
+
+
+            return ResponseEntity.ok(
+                    Map.of(
+                        "message",
+                        "Application submitted successfully ✅"
+                    )
+            );
+
+
+} catch (IOException | RuntimeException e) {
+
+    logger.error("Error while processing job application", e);
+
+    return ResponseEntity.status(500)
+            .body(Map.of(
+                "message",
+                "Server error ❌"
+            ));
+}
+
+    }
+
+
+    /* ================= VERIFY EMAIL ================= */
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyEmail(
+            @RequestParam String token) {
+
+        Optional<EmailVerificationToken> optional =
+                tokenRepository.findByToken(token);
 
         if (optional.isEmpty()) {
 
-            return ResponseEntity.status(401)
-                    .body(Map.of("message",
-                            "User not found"));
+            return ResponseEntity.badRequest()
+                    .body("Invalid link ❌");
         }
 
-        User user = optional.get();
+        EmailVerificationToken verify =
+                optional.get();
 
-        if (!encoder.matches(
-                loginUser.getPassword(),
-                user.getPassword())) {
+        verify.setVerified(true);
 
-            return ResponseEntity.status(401)
-                    .body(Map.of("message",
-                            "Wrong password"));
+        tokenRepository.save(verify);
+
+
+        List<Application> apps =
+                applicationRepository
+                        .findByUserEmail(
+                                verify.getEmail());
+
+        if (!apps.isEmpty()) {
+
+            Application app =
+                    apps.get(apps.size() - 1);
+
+            app.setVerified(true);
+
+            applicationRepository.save(app);
         }
-
-        String token =
-                jwtUtil.generateToken(
-                        user.getEmail());
 
         return ResponseEntity.ok(
-                Map.of("token", token,
-                       "user", user));
+                "Email verified successfully ✅");
     }
 
 
-    /* ================= UPDATE ================= */
+    /* ================= GET USER APPLICATIONS ================= */
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateUser(
-            @RequestBody User updated) {
+    @GetMapping("/user/{email}")
+    public List<Application> getByUserEmail(
+            @PathVariable String email) {
 
-        Optional<User> optional =
-                userRepository.findByEmail(
-                        updated.getEmail());
+        return applicationRepository
+                .findByUserEmail(email);
+    }
 
-        if (optional.isEmpty()) {
+
+    /* ================= DELETE APPLICATION ================= */
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteApplication(
+            @PathVariable String id) {
+
+        if (!applicationRepository.existsById(id)) {
 
             return ResponseEntity.badRequest()
-                    .body(Map.of("message",
-                            "User not found"));
+                    .body(Map.of(
+                        "message",
+                        "Not found"
+                    ));
         }
 
-        User user = optional.get();
+        applicationRepository.deleteById(id);
 
-        user.setName(updated.getName());
-        user.setPhone(updated.getPhone());
-
-        User saved =
-                userRepository.save(user);
-
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(
+                Map.of(
+                    "message",
+                    "Deleted successfully ✅"
+                ));
     }
 }
