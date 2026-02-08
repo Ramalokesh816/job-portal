@@ -1,16 +1,11 @@
 package com.jobportal.jobportal_backend.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
 @Service
 public class EmailService {
-
-    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Autowired
     private JavaMailSender mailSender;
@@ -19,53 +14,47 @@ public class EmailService {
     // ================= VERIFY MAIL =================
     public void sendVerificationMail(String to, String link) {
 
-        sendMail(
-            to,
-            "Verify Your Job Application",
-            """
-            Dear Candidate,
+        String body = """
+                Dear Candidate,
 
-            Please verify your application:
-            """ + link + """
+                Please verify your job application:
+                %s
 
-            Regards,
-            JobConnect Team"""
-        );
+                Regards,
+                JobConnect Team""".formatted(link);
+
+        sendMail(to, "Verify Your Job Application", body);
     }
 
 
     // ================= THANK YOU =================
     public void sendThankYouMail(String to) {
 
-        sendMail(
-            to,
-            "Application Confirmed",
-            """
-            Dear Candidate,
+        String body = """
+                Dear Candidate,
 
-            Your application is verified.
-            We will contact you soon.
+                Your application is verified successfully.
+                We will contact you soon.
 
-            Regards,
-            HR Team"""
-        );
+                Regards,
+                HR Team""";
+
+        sendMail(to, "Application Confirmed", body);
     }
 
 
     // ================= HR REPLY =================
     public void sendHRReplyMail(String to, String message) {
 
-        sendMail(
-            to,
-            "Message from HR",
-            """
-            Dear Candidate,
+        String body = """
+                Dear Candidate,
 
-            """ + message + """
+                %s
 
-            Regards,
-            HR Team"""
-        );
+                Regards,
+                HR Team""".formatted(message);
+
+        sendMail(to, "Message from HR", body);
     }
 
 
@@ -76,64 +65,58 @@ public class EmailService {
             String time,
             String location) {
 
-        sendMail(
-            to,
-            "Interview Invitation",
-            """
-            Dear Candidate,
+        String body = """
+                Dear Candidate,
 
-            You are shortlisted for interview.
+                You are shortlisted for interview.
 
-            Date: """ + date + """
-            Time: """ + time + """
-            Location: """ + location + """
+                Date: %s
+                Time: %s
+                Location: %s
 
-            Best of luck!
+                Best of luck!
 
-            HR Team"""
-        );
+                HR Team""".formatted(date, time, location);
+
+        sendMail(to, "Interview Invitation", body);
     }
 
 
     // ================= STATUS =================
     public void sendStatusMail(String to, String status) {
 
-        sendMail(
-            to,
-            "Application Status Update",
-            """
-            Dear Candidate,
+        String body = """
+                Dear Candidate,
 
-            Your application status: """ + status + """
+                Your application status: %s
 
-            Regards,
-            HR Team"""
-        );
+                Regards,
+                HR Team""".formatted(status);
+
+        sendMail(to, "Application Status Update", body);
     }
 
 
     // ================= COMMON =================
-    private void sendMail(
-            String to,
-            String subject,
-            String body) {
+    private void sendMail(String to, String subject, String body) {
 
-        try {
+    try {
 
-            SimpleMailMessage msg =
-                    new SimpleMailMessage();
+        SimpleMailMessage msg = new SimpleMailMessage();
 
-            msg.setTo(to);
-            msg.setSubject(subject);
-            msg.setText(body);
+        msg.setTo(to);
+        msg.setSubject(subject);
+        msg.setText(body);
 
-            mailSender.send(msg);
+        mailSender.send(msg);
 
-            System.out.println("Mail sent to: " + to);
+        System.out.println("Mail sent to: " + to);
 
-        } catch (org.springframework.mail.MailException | IllegalArgumentException e) {
+    } catch (Exception e) {
 
-            logger.error("Failed to send email to: " + to, e);
-        }
+        System.out.println("Mail sending failed ❌");
+        e.printStackTrace();
     }
+}
+
 }
