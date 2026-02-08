@@ -23,6 +23,8 @@ public class Application {
 
     private Date appliedAt;
     private boolean verified = false;
+    private String status; // PENDING, SELECTED, REJECTED
+
 
 
 
@@ -109,5 +111,13 @@ public class Application {
 public void setVerified(boolean verified) {
     this.verified = verified;
 }
+public String getStatus() {
+    return status;
+}
+
+public void setStatus(String status) {
+    this.status = status;
+}
+
 
 }

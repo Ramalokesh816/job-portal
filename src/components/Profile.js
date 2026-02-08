@@ -358,6 +358,13 @@ function Profile() {
                   >
 
                     <p><b>Job:</b> {app.jobTitle}</p>
+                    <p>
+  <b>Status:</b>
+  <span className={`status ${app.status}`}>
+    {app.status}
+  </span>
+</p>
+
 
                     <p><b>Experience:</b> {app.experience}</p>
 
