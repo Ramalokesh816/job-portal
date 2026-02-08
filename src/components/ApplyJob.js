@@ -1,8 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-
 import API from "../services/api";
-
 import "./ApplyJob.css";
 
 function Apply() {
@@ -10,9 +8,7 @@ function Apply() {
   const { state: job } = useLocation();
   const navigate = useNavigate();
 
-  const user =
-    JSON.parse(localStorage.getItem("user"));
-
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const [form, setForm] = useState({
     fullName: "",
@@ -21,34 +17,33 @@ function Apply() {
     resume: null
   });
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
 
+  // No job selected
   if (!job || !job.title) {
-    return <h2>No Job Selected</h2>;
+    return <h2 style={{ textAlign: "center" }}>No Job Selected</h2>;
   }
 
+
+  /* ================= SUBMIT ================= */
 
   const submit = async (e) => {
 
     e.preventDefault();
 
     if (!user?.email) {
-
-      alert("Login first");
+      alert("Please login first ❗");
       navigate("/login");
       return;
     }
 
     if (!form.resume) {
-
-      alert("Upload resume");
+      alert("Upload resume ❗");
       return;
     }
 
     setLoading(true);
-
 
     try {
 
@@ -67,16 +62,15 @@ function Apply() {
         data
       );
 
-      if (res.data) {
+      alert(res.data?.message || "Applied Successfully ✅");
 
-        alert("Applied ✅");
+      navigate("/profile");
 
-        navigate("/profile");
-      }
+    } catch (err) {
 
-    } catch {
+      console.log("Apply Error:", err);
 
-      alert("Failed ❌");
+      alert("Apply Failed ❌");
 
     } finally {
 
@@ -99,6 +93,7 @@ function Apply() {
         <input
           required
           placeholder="Full Name"
+          value={form.fullName}
           onChange={(e) =>
             setForm({
               ...form,
@@ -111,6 +106,7 @@ function Apply() {
         <input
           required
           placeholder="Experience"
+          value={form.experience}
           onChange={(e) =>
             setForm({
               ...form,
@@ -123,6 +119,7 @@ function Apply() {
         <textarea
           required
           placeholder="Skills"
+          value={form.skills}
           onChange={(e) =>
             setForm({
               ...form,
@@ -135,6 +132,7 @@ function Apply() {
         <input
           type="file"
           required
+          accept=".pdf,.doc,.docx"
           onChange={(e) =>
             setForm({
               ...form,

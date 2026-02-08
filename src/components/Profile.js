@@ -63,7 +63,6 @@ function Profile() {
         localStorage.getItem("user");
 
       if (!userData) {
-
         navigate("/login");
         return;
       }
@@ -71,8 +70,6 @@ function Profile() {
       const user = JSON.parse(userData);
 
       if (!user?.email) {
-
-        localStorage.clear();
         navigate("/login");
         return;
       }
@@ -87,7 +84,6 @@ function Profile() {
 
     } catch {
 
-      localStorage.clear();
       navigate("/login");
     }
 
@@ -99,7 +95,6 @@ function Profile() {
   const loadApplications = useCallback(async () => {
 
     if (!storedUser?.email) {
-
       setLoading(false);
       return;
     }
@@ -116,7 +111,7 @@ function Profile() {
 
     } catch (err) {
 
-      console.log("Fetch error:", err);
+      console.log(err);
 
       setApplications([]);
 
@@ -155,7 +150,6 @@ function Profile() {
       );
 
       setPhoto(reader.result);
-
     };
 
     reader.readAsDataURL(file);
@@ -172,7 +166,6 @@ function Profile() {
         "/api/users/update",
         {
           name: details.name,
-          email: details.email,
           phone: details.phone
         }
       );
@@ -186,16 +179,13 @@ function Profile() {
 
       setIsEditing(false);
 
-      alert("Profile updated ✅");
+      alert("Updated ✅");
 
     } catch (err) {
 
-      console.log("Update error:", err);
+      console.log(err);
 
-      alert(
-        err.response?.data?.message ||
-        "Update failed ❌"
-      );
+      alert("Update failed ❌");
     }
   };
 
@@ -204,26 +194,33 @@ function Profile() {
 
   const logout = () => {
 
+    const savedPhoto =
+      localStorage.getItem("profilePhoto");
+
     localStorage.clear();
+
+    if (savedPhoto) {
+      localStorage.setItem(
+        "profilePhoto",
+        savedPhoto
+      );
+    }
 
     navigate("/login");
   };
 
 
-  /* ================= DELETE APPLICATION ================= */
+  /* ================= DELETE ================= */
 
   const deleteApplication = async (id) => {
 
     if (!id) {
-
-      alert("Invalid application ID ❌");
+      alert("Invalid ID ❌");
       return;
     }
 
-    if (!window.confirm(
-      "Cancel this application?"
-    )) return;
-
+    if (!window.confirm("Cancel application?"))
+      return;
 
     try {
 
@@ -231,14 +228,13 @@ function Profile() {
         `/api/applications/${id}`
       );
 
-      // Remove from UI instantly
       setApplications(prev =>
         prev.filter(
           app => (app._id || app.id) !== id
         )
       );
 
-      alert("Application cancelled ✅");
+      alert("Cancelled ✅");
 
     } catch (err) {
 
@@ -252,12 +248,7 @@ function Profile() {
   /* ================= LOADING ================= */
 
   if (!storedUser) {
-
-    return (
-      <p style={{ textAlign: "center" }}>
-        Loading...
-      </p>
-    );
+    return <p>Loading...</p>;
   }
 
 
@@ -265,7 +256,7 @@ function Profile() {
     <div className="profile-layout">
 
 
-      {/* ========== LEFT MENU ========== */}
+      {/* ===== LEFT ===== */}
       <div className="profile-menu">
 
 
@@ -279,8 +270,8 @@ function Profile() {
 
             <input
               type="file"
-              onChange={handlePhotoChange}
               hidden
+              onChange={handlePhotoChange}
             />
 
           </label>
@@ -334,11 +325,11 @@ function Profile() {
       </div>
 
 
-      {/* ========== RIGHT CONTENT ========== */}
+      {/* ===== RIGHT ===== */}
       <div className="profile-content">
 
 
-        {/* ===== APPLICATIONS TAB ===== */}
+        {/* === APPLICATIONS === */}
         {activeTab === "applications" && (
 
           <>
@@ -357,36 +348,22 @@ function Profile() {
 
               <div className="applications-grid">
 
-                {applications.map((app) => (
+                {applications.map(app => (
 
                   <div
                     key={app._id || app.id}
                     className="app-card"
                   >
 
-                    <p>
-                      <b>Job:</b>{" "}
-                      {app.jobTitle}
-                    </p>
+                    <p><b>Job:</b> {app.jobTitle}</p>
 
-                    <p>
-                      <b>Experience:</b>{" "}
-                      {app.experience}
-                    </p>
+                    <p><b>Experience:</b> {app.experience}</p>
 
-                    <p>
-                      <b>Skills:</b>{" "}
-                      {app.skills}
-                    </p>
+                    <p><b>Skills:</b> {app.skills}</p>
 
                     <p className="date">
-
-                      Applied on:{" "}
-
-                      {new Date(
-                        app.appliedAt
-                      ).toDateString()}
-
+                      {new Date(app.appliedAt)
+                        .toDateString()}
                     </p>
 
                     <button
@@ -412,11 +389,10 @@ function Profile() {
         )}
 
 
-        {/* ===== DETAILS TAB ===== */}
+        {/* === DETAILS === */}
         {activeTab === "details" && (
 
           <div className="details-section">
-
 
             <h2>
 
@@ -425,7 +401,6 @@ function Profile() {
               {!isEditing && (
 
                 <button
-                  className="edit-btn"
                   onClick={() =>
                     setIsEditing(true)
                   }
@@ -438,7 +413,6 @@ function Profile() {
             </h2>
 
 
-            {/* NAME */}
             <p>
 
               <b>Name:</b>{" "}
@@ -460,23 +434,17 @@ function Profile() {
             </p>
 
 
-            {/* EMAIL */}
             <p>
-
-              <b>Email:</b>{" "}
-
-              {details.email}
-
+              <b>Email:</b> {details.email}
             </p>
 
 
             {isEditing && (
 
               <button
-                className="save-btn"
                 onClick={saveDetails}
               >
-                Save Changes
+                Save
               </button>
 
             )}
