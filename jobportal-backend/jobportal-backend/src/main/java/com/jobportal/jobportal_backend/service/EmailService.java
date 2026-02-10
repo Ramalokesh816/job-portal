@@ -12,26 +12,23 @@ public class EmailService {
     private JavaMailSender mailSender;
 
 
-    /* ================= VERIFY MAIL ================= */
-
+    // ================= VERIFY MAIL =================
     public void sendVerificationMail(String to, String link) {
 
         String body = """
                 Dear Candidate,
 
                 Please verify your job application by clicking below:
-                %s
+                """ + link + """
 
                 Regards,
-                JobConnect Team
-                """.formatted(link);
+                JobConnect Team""";
 
         sendMail(to, "Verify Job Application", body);
     }
 
 
-    /* ================= THANK YOU ================= */
-
+    // ================= THANK YOU =================
     public void sendThankYouMail(String to) {
 
         String body = """
@@ -41,32 +38,28 @@ public class EmailService {
                 We will contact you soon.
 
                 Regards,
-                HR Team
-                """;
+                HR Team""";
 
         sendMail(to, "Application Confirmed", body);
     }
 
 
-    /* ================= STATUS MAIL ================= */
-
+    // ================= STATUS =================
     public void sendStatusMail(String to, String status) {
 
         String body = """
                 Dear Candidate,
 
-                Your application status: %s
+                Your application status: """ + status + """
 
                 Regards,
-                HR Team
-                """.formatted(status);
+                HR Team""";
 
         sendMail(to, "Application Status Update", body);
     }
 
 
-    /* ================= INTERVIEW MAIL ================= */
-
+    // ================= INTERVIEW =================
     public void sendInterviewMail(
             String to,
             String date,
@@ -78,38 +71,35 @@ public class EmailService {
 
                 You are shortlisted for interview.
 
-                Date: %s
-                Time: %s
-                Location: %s
+                Date: """ + date + """
+                Time: """ + time + """
+                Location: """ + location + """
 
                 Best of luck!
 
-                HR Team
-                """.formatted(date, time, location);
+                HR Team""";
 
         sendMail(to, "Interview Invitation", body);
     }
 
 
-    /* ================= HR REPLY ================= */
-
+    // ================= HR REPLY =================
     public void sendHRReplyMail(String to, String message) {
 
         String body = """
                 Dear Candidate,
 
-                %s
+                """ + message + """
 
                 Regards,
-                HR Team
-                """.formatted(message);
+                HR Team""";
 
         sendMail(to, "Message from HR", body);
     }
 
 
-    /* ================= COMMON MAIL METHOD ================= */
-
+    // ================= COMMON =================
+    @SuppressWarnings({"UseSpecificCatch", "CallToPrintStackTrace"})
     private void sendMail(
             String to,
             String subject,
