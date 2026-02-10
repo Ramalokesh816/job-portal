@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jobportal.jobportal_backend.model.User;
@@ -196,34 +197,35 @@ public class UserController {
     }
 
 
-    /* ================= TEST MAIL ================= */
+/* ================= TEST MAIL ================= */
 
-    @PostMapping("/test-mail")
-    @SuppressWarnings("CallToPrintStackTrace")
-    public ResponseEntity<?> testMail() {
+@RequestMapping(
+    value = "/test-mail",
+    method = {RequestMethod.GET, RequestMethod.POST}
+)
+@SuppressWarnings("CallToPrintStackTrace")
+public ResponseEntity<?> testMail() {
 
-        try {
+    try {
 
-            emailService.sendVerificationMail(
-                "jramalokesh04@gmail.com",
-                "https://example.com/test"
-            );
+        emailService.sendVerificationMail(
+            "jramalokesh04@gmail.com",
+            "https://example.com/test"
+        );
 
-            return ResponseEntity.ok(
-                Map.of("message", "Test mail sent ✅")
-            );
+        return ResponseEntity.ok(
+            Map.of("message", "Test mail sent ✅")
+        );
 
-        } catch (Exception e) {
+    } catch (Exception e) {
 
-            e.printStackTrace();
+        e.printStackTrace();
 
-            return ResponseEntity
-                    .status(500)
-                    .body(Map.of(
-                        "message",
-                        "Mail failed ❌"
-                    ));
-        }
+        return ResponseEntity
+                .status(500)
+                .body(Map.of("message", "Mail failed ❌"));
     }
+}
+
 
 }
