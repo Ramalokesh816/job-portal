@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +20,10 @@ import com.jobportal.jobportal_backend.service.EmailService;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin("*")
 public class UserController {
+
+    /* ================= AUTOWIRED ================= */
 
     @Autowired
     private UserRepository userRepository;
@@ -192,33 +196,34 @@ public class UserController {
     }
 
 
-    /* ================= TEST EMAIL ================= */
+    /* ================= TEST MAIL ================= */
 
     @PostMapping("/test-mail")
-    public ResponseEntity<?> testMail(
-            @RequestBody Map<String, String> body) {
+    @SuppressWarnings("CallToPrintStackTrace")
+    public ResponseEntity<?> testMail() {
 
-        String email = body.get("email");
+        try {
 
-        if (email == null || email.isEmpty()) {
+            emailService.sendVerificationMail(
+                "jramalokesh04@gmail.com",
+                "https://example.com/test"
+            );
 
-            return ResponseEntity.badRequest()
-                .body(Map.of(
-                    "message",
-                    "Email is required"
-                ));
+            return ResponseEntity.ok(
+                Map.of("message", "Test mail sent ✅")
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            return ResponseEntity
+                    .status(500)
+                    .body(Map.of(
+                        "message",
+                        "Mail failed ❌"
+                    ));
         }
-
-        emailService.sendVerificationMail(
-            email,
-            "https://jobconnect.com/test"
-        );
-
-        return ResponseEntity.ok(
-            Map.of(
-                "message",
-                "Test mail sent ✅"
-            ));
     }
 
 }
