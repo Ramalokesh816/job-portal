@@ -12,7 +12,7 @@ public class EmailService {
     private JavaMailSender mailSender;
 
 
-    // ================= COMMON METHOD =================
+    /* ================= COMMON ================= */
 
     @SuppressWarnings({"UseSpecificCatch", "CallToPrintStackTrace"})
     private void sendMail(String to, String subject, String body) {
@@ -21,7 +21,9 @@ public class EmailService {
 
             SimpleMailMessage mail = new SimpleMailMessage();
 
-            mail.setFrom("jramalokesh04@gmail.com"); // Verified in Brevo
+            // Must be verified in Brevo
+            mail.setFrom("jramalokesh04@gmail.com");
+
             mail.setTo(to);
             mail.setSubject(subject);
             mail.setText(body);
@@ -38,14 +40,14 @@ public class EmailService {
     }
 
 
-    // ================= VERIFY =================
+    /* ================= VERIFY ================= */
 
     public void sendVerificationMail(String to, String link) {
 
         String body = """
                 Dear Candidate,
 
-                Please verify your job application:
+                Please verify your application:
 
                 %s
 
@@ -53,21 +55,20 @@ public class EmailService {
                 JobConnect Team
                 """.formatted(link);
 
-        sendMail(to, "Verify Job Application", body);
+        sendMail(to, "Verify Application", body);
     }
 
 
-    // ================= THANK YOU =================
+    /* ================= THANK YOU ================= */
 
     public void sendThankYouMail(String to) {
 
         String body = """
                 Dear Candidate,
 
-                Your application has been verified successfully.
+                Your application is confirmed.
                 We will contact you soon.
 
-                Regards,
                 HR Team
                 """;
 
@@ -75,24 +76,23 @@ public class EmailService {
     }
 
 
-    // ================= STATUS =================
+    /* ================= STATUS ================= */
 
     public void sendStatusMail(String to, String status) {
 
         String body = """
                 Dear Candidate,
 
-                Your application status: %s
+                Application Status: %s
 
-                Regards,
                 HR Team
                 """.formatted(status);
 
-        sendMail(to, "Application Status Update", body);
+        sendMail(to, "Status Update", body);
     }
 
 
-    // ================= INTERVIEW =================
+    /* ================= INTERVIEW ================= */
 
     public void sendInterviewMail(
             String to,
@@ -103,13 +103,11 @@ public class EmailService {
         String body = """
                 Dear Candidate,
 
-                You are shortlisted for interview.
+                Interview Details:
 
                 Date: %s
                 Time: %s
                 Location: %s
-
-                Best of luck!
 
                 HR Team
                 """.formatted(date, time, location);
@@ -118,7 +116,7 @@ public class EmailService {
     }
 
 
-    // ================= HR REPLY =================
+    /* ================= HR REPLY ================= */
 
     public void sendHRReplyMail(String to, String message) {
 
@@ -127,10 +125,10 @@ public class EmailService {
 
                 %s
 
-                Regards,
                 HR Team
                 """.formatted(message);
 
-        sendMail(to, "Message from HR", body);
+        sendMail(to, "HR Message", body);
     }
+
 }

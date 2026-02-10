@@ -1,27 +1,34 @@
 package com.jobportal.jobportal_backend.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jobportal.jobportal_backend.service.EmailService;
 
 @RestController
+@RequestMapping("/api/test")
 public class TestMailController {
 
-    private final EmailService emailService;
-
-    public TestMailController(EmailService emailService) {
-        this.emailService = emailService;
-    }
+    @Autowired
+    private EmailService emailService;
 
 
-    @GetMapping("/api/test/mail")
-    public String testMail() {
+    @PostMapping("/mail")
+    public ResponseEntity<?> testMail(@RequestBody Map<String,String> body) {
 
-        emailService.sendThankYouMail(
-                "jramalokesh04@gmail.com"
+        String email = body.get("email");
+
+        emailService.sendVerificationMail(
+                email,
+                "https://example.com/test"
         );
 
-        return "Mail Sent ✅";
+        return ResponseEntity.ok("✅ Test mail sent");
     }
 }
