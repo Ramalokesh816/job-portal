@@ -1,46 +1,85 @@
 package com.jobportal.jobportal_backend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${brevo.api.key}")
+    private String apiKey;
+
+    private final HttpClient client = HttpClient.newHttpClient();
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
 
-    /* ================= COMMON ================= */
+    // ================= COMMON SEND =================
 
     @SuppressWarnings({"UseSpecificCatch", "CallToPrintStackTrace"})
-    private void sendMail(String to, String subject, String body) {
+    private void sendMail(String to, String subject, String content) {
 
         try {
 
-            SimpleMailMessage mail = new SimpleMailMessage();
+            ObjectNode root = mapper.createObjectNode();
 
-            // Must be verified in Brevo
-            mail.setFrom("jramalokesh04@gmail.com");
+            // Sender (MUST be verified in Brevo)
+            ObjectNode sender = root.putObject("sender");
+            sender.put("name", "JobConnect");
+            sender.put("email", "jramalokesh04@gmail.com");
 
-            mail.setTo(to);
-            mail.setSubject(subject);
-            mail.setText(body);
+            // Receiver
+            ObjectNode toNode = root.putArray("to")
+                    .addObject();
 
-            mailSender.send(mail);
+            toNode.put("email", to);
 
-            System.out.println("✅ Mail sent to: " + to);
+            // Mail data
+            root.put("subject", subject);
+            root.put("htmlContent",
+                    "<pre style='font-family:Arial'>" + content + "</pre>");
+
+            String json = mapper.writeValueAsString(root);
+
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("https://api.brevo.com/v3/smtp/email"))
+                    .header("Content-Type", "application/json")
+                    .header("api-key", apiKey)
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+
+
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+
+            if (response.statusCode() == 201) {
+
+                System.out.println("✅ Mail sent to: " + to);
+
+            } else {
+
+                System.out.println("❌ Mail failed: " + response.body());
+            }
 
         } catch (Exception e) {
 
-            System.out.println("❌ Mail failed");
+            System.out.println("❌ Email Error");
             e.printStackTrace();
         }
     }
 
 
-    /* ================= VERIFY ================= */
+    // ================= VERIFY =================
 
     public void sendVerificationMail(String to, String link) {
 
@@ -55,11 +94,11 @@ public class EmailService {
                 JobConnect Team
                 """.formatted(link);
 
-        sendMail(to, "Verify Application", body);
+        sendMail(to, "Verify Job Application", body);
     }
 
 
-    /* ================= THANK YOU ================= */
+    // ================= THANK YOU =================
 
     public void sendThankYouMail(String to) {
 
@@ -67,8 +106,10 @@ public class EmailService {
                 Dear Candidate,
 
                 Your application is confirmed.
+
                 We will contact you soon.
 
+                Regards,
                 HR Team
                 """;
 
@@ -76,7 +117,7 @@ public class EmailService {
     }
 
 
-    /* ================= STATUS ================= */
+    // ================= STATUS =================
 
     public void sendStatusMail(String to, String status) {
 
@@ -85,6 +126,7 @@ public class EmailService {
 
                 Application Status: %s
 
+                Regards,
                 HR Team
                 """.formatted(status);
 
@@ -92,7 +134,7 @@ public class EmailService {
     }
 
 
-    /* ================= INTERVIEW ================= */
+    // ================= INTERVIEW =================
 
     public void sendInterviewMail(
             String to,
@@ -103,11 +145,13 @@ public class EmailService {
         String body = """
                 Dear Candidate,
 
-                Interview Details:
+                Interview Scheduled:
 
                 Date: %s
                 Time: %s
                 Location: %s
+
+                Best of luck!
 
                 HR Team
                 """.formatted(date, time, location);
@@ -116,17 +160,18 @@ public class EmailService {
     }
 
 
-    /* ================= HR REPLY ================= */
+    // ================= HR REPLY =================
 
-    public void sendHRReplyMail(String to, String message) {
+    public void sendHRReplyMail(String to, String msg) {
 
         String body = """
                 Dear Candidate,
 
                 %s
 
+                Regards,
                 HR Team
-                """.formatted(message);
+                """.formatted(msg);
 
         sendMail(to, "HR Message", body);
     }

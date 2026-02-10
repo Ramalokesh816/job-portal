@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jobportal.jobportal_backend.model.User;
@@ -198,34 +197,18 @@ public class UserController {
 
 
 /* ================= TEST MAIL ================= */
-
-@RequestMapping(
-    value = "/test-mail",
-    method = {RequestMethod.GET, RequestMethod.POST}
-)
-@SuppressWarnings("CallToPrintStackTrace")
+@PostMapping("/test-mail")
 public ResponseEntity<?> testMail() {
 
-    try {
-
-        emailService.sendVerificationMail(
+    emailService.sendVerificationMail(
             "jramalokesh04@gmail.com",
-            "https://example.com/test"
-        );
+            "https://jobconnect.com/test"
+    );
 
-        return ResponseEntity.ok(
-            Map.of("message", "Test mail sent ✅")
-        );
-
-    } catch (Exception e) {
-
-        e.printStackTrace();
-
-        return ResponseEntity
-                .status(500)
-                .body(Map.of("message", "Mail failed ❌"));
-    }
+    return ResponseEntity.ok("Test mail sent ✅");
 }
+
+
 
 
 }
