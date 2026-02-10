@@ -10,16 +10,13 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.5</version>
-        <relativePath/>
     </parent>
 
     <groupId>com.jobportal</groupId>
     <artifactId>jobportal-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
 
     <name>jobportal-backend</name>
-    <description>Job Portal Backend</description>
 
     <properties>
         <java.version>17</java.version>
@@ -66,7 +63,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Mail -->
+        <!-- MAIL (IMPORTANT) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
@@ -83,24 +80,13 @@
 
     <build>
 
-        <!-- Jar Name -->
         <finalName>app</finalName>
 
         <plugins>
 
-            <!-- Spring Boot Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-
-            <!-- Skip Tests -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
             </plugin>
 
         </plugins>
