@@ -12,55 +12,23 @@ public class EmailService {
     private JavaMailSender mailSender;
 
 
-    /* ================= COMMON ================= */
+    /* ================= VERIFY MAIL ================= */
 
-    @SuppressWarnings({"UseSpecificCatch", "CallToPrintStackTrace"})
-    private void sendMail(
-            String to,
-            String subject,
-            String body) {
-
-        try {
-
-            SimpleMailMessage mail =
-                    new SimpleMailMessage();
-
-            mail.setFrom("jramalokesh04@gmail.com"); // Your email
-            mail.setTo(to);
-            mail.setSubject(subject);
-            mail.setText(body);
-
-            mailSender.send(mail);
-
-            System.out.println("✅ Mail sent to: " + to);
-
-        } catch (Exception e) {
-
-            System.out.println("❌ Mail failed");
-            e.printStackTrace();
-        }
-    }
-
-
-
-    /* ================= VERIFY ================= */
-
-    public void sendVerificationMail(
-            String to,
-            String link) {
+    public void sendVerificationMail(String to, String link) {
 
         String body = """
-                Dear Candidate,
+        Dear Candidate,
 
-                Verify your job application:
-                %s
+        Please verify your job application by clicking below:
 
-                Regards,
-                JobConnect""".formatted(link);
+        %s
 
-        sendMail(to, "Verify Application", body);
+        Regards,
+        JobConnect Team
+        """.formatted(link);
+
+        sendMail(to, "Verify Job Application", body);
     }
-
 
 
     /* ================= THANK YOU ================= */
@@ -68,34 +36,36 @@ public class EmailService {
     public void sendThankYouMail(String to) {
 
         String body = """
-                Dear Candidate,
+        Dear Candidate,
 
-                Your application is confirmed.
-                We will contact you soon.
+        Your application is confirmed successfully.
+        We will contact you soon.
 
-                HR Team""";
+        Regards,
+        HR Team
+        """;
 
         sendMail(to, "Application Confirmed", body);
     }
 
 
-
     /* ================= STATUS ================= */
 
-    public void sendStatusMail(
-            String to,
-            String status) {
+    public void sendStatusMail(String to, String status) {
 
         String body = """
-                Dear Candidate,
+        Dear Candidate,
 
-                Status: %s
+        Your application status is:
 
-                HR Team""".formatted(status);
+        %s
 
-        sendMail(to, "Status Update", body);
+        Regards,
+        HR Team
+        """.formatted(status);
+
+        sendMail(to, "Application Status Update", body);
     }
-
 
 
     /* ================= INTERVIEW ================= */
@@ -107,33 +77,68 @@ public class EmailService {
             String location) {
 
         String body = """
-                Dear Candidate,
+        Dear Candidate,
 
-                Interview Details:
-                Date: %s
-                Time: %s
-                Location: %s
+        You are shortlisted for interview.
 
-                HR Team""".formatted(date, time, location);
+        Date: %s
+        Time: %s
+        Location: %s
+
+        Best of luck!
+
+        HR Team
+        """.formatted(date, time, location);
 
         sendMail(to, "Interview Invitation", body);
     }
 
 
-
     /* ================= HR REPLY ================= */
 
-    public void sendHRReplyMail(
-            String to,
-            String msg) {
+    public void sendHRReplyMail(String to, String message) {
 
         String body = """
-                Dear Candidate,
+        Dear Candidate,
 
-                %s
+        %s
 
-                HR Team""".formatted(msg);
+        Regards,
+        HR Team
+        """.formatted(message);
 
-        sendMail(to, "HR Message", body);
+        sendMail(to, "Message from HR", body);
+    }
+
+
+    /* ================= COMMON METHOD ================= */
+
+    @SuppressWarnings({"CallToPrintStackTrace", "UseSpecificCatch"})
+    private void sendMail(
+            String to,
+            String subject,
+            String body) {
+
+        try {
+
+            SimpleMailMessage mail =
+                    new SimpleMailMessage();
+
+            // Must be same as SMTP sender
+            mail.setFrom("no-reply@jobconnect.com");
+
+            mail.setTo(to);
+            mail.setSubject(subject);
+            mail.setText(body);
+
+            mailSender.send(mail);
+
+            System.out.println("✅ Mail sent to: " + to);
+
+        } catch (Exception e) {
+
+            System.out.println("❌ Mail sending failed");
+            e.printStackTrace();
+        }
     }
 }

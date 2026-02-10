@@ -6,11 +6,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -34,6 +37,9 @@ import com.jobportal.jobportal_backend.service.EmailService;
 @RequestMapping("/api/applications")
 @CrossOrigin(origins = "*")
 public class ApplicationController {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(ApplicationController.class);
 
     private final ApplicationRepository applicationRepository;
     private final EmailTokenRepository tokenRepository;
@@ -61,22 +67,33 @@ public class ApplicationController {
             @RequestParam String jobTitle,
             @RequestParam String userEmail,
             @RequestParam MultipartFile resume
-
     ) {
 
         try {
 
-            // Create uploads folder
+            if (resume.isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body("Resume required ❌");
+            }
+
+
+            /* ===== UPLOAD DIR ===== */
+
             Path uploadPath = Paths.get("uploads");
 
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            // Save resume
+
+            /* ===== SAVE FILE ===== */
+
+            String original =
+                    resume.getOriginalFilename();
+
             String fileName =
                     System.currentTimeMillis() + "_" +
-                    resume.getOriginalFilename();
+                    (original == null ? "resume.pdf" : original);
 
             Files.copy(
                     resume.getInputStream(),
@@ -84,7 +101,9 @@ public class ApplicationController {
                     StandardCopyOption.REPLACE_EXISTING
             );
 
-            // Save application
+
+            /* ===== SAVE APPLICATION ===== */
+
             Application app = new Application();
 
             app.setFullName(fullName);
@@ -99,7 +118,9 @@ public class ApplicationController {
 
             applicationRepository.save(app);
 
-            // Create token
+
+            /* ===== CREATE TOKEN ===== */
+
             String token = UUID.randomUUID().toString();
 
             EmailVerificationToken verify =
@@ -112,7 +133,9 @@ public class ApplicationController {
 
             tokenRepository.save(verify);
 
-            // Send mail
+
+            /* ===== SEND EMAIL ===== */
+
             try {
 
                 String link =
@@ -120,18 +143,24 @@ public class ApplicationController {
                         "/api/applications/verify?token=" +
                         token;
 
-                emailService.sendVerificationMail(userEmail, link);
+                emailService.sendVerificationMail(
+                        userEmail, link);
+
+                log.info("Verification mail sent to {}", userEmail);
 
             } catch (Exception e) {
 
-                System.out.println("Mail error: " + e.getMessage());
+                log.error("Mail failed", e);
             }
 
-            return ResponseEntity.ok("Application submitted ✅");
+
+            return ResponseEntity.ok(
+                    "Application submitted ✅ Please verify email"
+            );
 
         } catch (IOException e) {
 
-            e.printStackTrace();
+            log.error("Apply job failed", e);
 
             return ResponseEntity
                     .status(500)
@@ -143,7 +172,8 @@ public class ApplicationController {
     /* ================= VERIFY ================= */
 
     @GetMapping("/verify")
-    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+    public ResponseEntity<?> verifyEmail(
+            @RequestParam String token) {
 
         Optional<EmailVerificationToken> optional =
                 tokenRepository.findByToken(token);
@@ -154,38 +184,61 @@ public class ApplicationController {
                     .body("Invalid link ❌");
         }
 
-        EmailVerificationToken verify = optional.get();
+        EmailVerificationToken verify =
+                optional.get();
 
         if (verify.isVerified()) {
 
-            return ResponseEntity.ok("Already verified ✅");
+            return ResponseEntity.ok(
+                    "Already verified ✅"
+            );
         }
+
+
+        /* ===== UPDATE TOKEN ===== */
 
         verify.setVerified(true);
 
         tokenRepository.save(verify);
 
-        // Update latest app
+
+        /* ===== UPDATE APPLICATION ===== */
+
         List<Application> apps =
                 applicationRepository
-                        .findByUserEmail(verify.getEmail());
+                        .findByUserEmail(
+                                verify.getEmail());
 
         if (!apps.isEmpty()) {
 
-            Application app =
-                    apps.get(apps.size() - 1);
+            Application latest =
+                    apps.stream()
+                        .max(Comparator.comparing(
+                                Application::getAppliedAt))
+                        .get();
 
-            app.setVerified(true);
-            app.setStatus("PENDING");
+            latest.setVerified(true);
+            latest.setStatus("PENDING");
 
-            applicationRepository.save(app);
+            applicationRepository.save(latest);
         }
 
-        // Thank you mail
-        emailService.sendThankYouMail(verify.getEmail());
+
+        /* ===== THANK YOU MAIL ===== */
+
+        try {
+
+            emailService.sendThankYouMail(
+                    verify.getEmail());
+
+        } catch (Exception e) {
+
+            log.error("Thank you mail failed", e);
+        }
+
 
         return ResponseEntity.ok(
-                "Application confirmed ✅"
+                "Application verified successfully ✅"
         );
     }
 
@@ -241,10 +294,18 @@ public class ApplicationController {
 
         applicationRepository.save(app);
 
-        emailService.sendStatusMail(
-                app.getUserEmail(),
-                status
-        );
+
+        try {
+
+            emailService.sendStatusMail(
+                    app.getUserEmail(),
+                    status);
+
+        } catch (Exception e) {
+
+            log.error("Status mail failed", e);
+        }
+
 
         return ResponseEntity.ok("Status updated ✅");
     }
@@ -254,6 +315,7 @@ public class ApplicationController {
 
     @PostMapping("/interview/{id}")
     public ResponseEntity<?> sendInterview(
+
             @PathVariable String id,
             @RequestParam String date,
             @RequestParam String time,
@@ -270,12 +332,20 @@ public class ApplicationController {
 
         Application app = optional.get();
 
-        emailService.sendInterviewMail(
-                app.getUserEmail(),
-                date,
-                time,
-                location
-        );
+
+        try {
+
+            emailService.sendInterviewMail(
+                    app.getUserEmail(),
+                    date,
+                    time,
+                    location);
+
+        } catch (Exception e) {
+
+            log.error("Interview mail failed", e);
+        }
+
 
         return ResponseEntity.ok("Interview mail sent ✅");
     }
@@ -285,6 +355,7 @@ public class ApplicationController {
 
     @PostMapping("/reply/{id}")
     public ResponseEntity<?> sendHRReply(
+
             @PathVariable String id,
             @RequestParam String message) {
 
@@ -299,10 +370,18 @@ public class ApplicationController {
 
         Application app = optional.get();
 
-        emailService.sendHRReplyMail(
-                app.getUserEmail(),
-                message
-        );
+
+        try {
+
+            emailService.sendHRReplyMail(
+                    app.getUserEmail(),
+                    message);
+
+        } catch (Exception e) {
+
+            log.error("HR reply mail failed", e);
+        }
+
 
         return ResponseEntity.ok("Reply sent ✅");
     }
