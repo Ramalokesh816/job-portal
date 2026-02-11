@@ -190,26 +190,30 @@ function Profile() {
   };
 
 
-  /* ================= LOGOUT ================= */
+  /* ================= LOGOUT (FIXED) ================= */
 
   const logout = () => {
 
-  const photo =
-    localStorage.getItem("profilePhoto");
+    // Remove login data
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-  const user =
-    localStorage.getItem("user");
+    // Keep profile photo (optional)
+    const photo =
+      localStorage.getItem("profilePhoto");
 
-  localStorage.clear();
+    localStorage.clear();
 
-  if (photo)
-    localStorage.setItem("profilePhoto", photo);
+    if (photo) {
+      localStorage.setItem("profilePhoto", photo);
+    }
 
-  if (user)
-    localStorage.setItem("user", user);
+    // Clear React state
+    setStoredUser(null);
 
-  navigate("/login");
-};
+    // Redirect
+    navigate("/login", { replace: true });
+  };
 
 
   /* ================= DELETE ================= */
@@ -358,13 +362,13 @@ function Profile() {
                   >
 
                     <p><b>Job:</b> {app.jobTitle}</p>
-                    <p>
-  <b>Status:</b>
-  <span className={`status ${app.status}`}>
-    {app.status}
-  </span>
-</p>
 
+                    <p>
+                      <b>Status:</b>{" "}
+                      <span className={`status ${app.status}`}>
+                        {app.status}
+                      </span>
+                    </p>
 
                     <p><b>Experience:</b> {app.experience}</p>
 
