@@ -117,3 +117,75 @@
 .apply button:hover {
   background: #155bb5;
 }
+/* =====================================
+   APPLY JOB - MOBILE RESPONSIVE
+===================================== */
+
+/* Tablets */
+@media (max-width: 992px) {
+
+  .apply {
+    width: 90%;
+    padding: 22px;
+  }
+
+  .requirements ul {
+    font-size: 13px;
+  }
+}
+
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+
+  .apply-container {
+    padding: 15px;
+  }
+
+  .apply {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px 18px;
+    border-radius: 10px;
+  }
+
+  .apply h2 {
+    font-size: 22px;
+  }
+
+  .apply input,
+  .apply textarea {
+    font-size: 13px;
+    padding: 9px;
+  }
+
+  .resume-upload {
+    font-size: 13px;
+  }
+
+  .apply button {
+    font-size: 14px;
+    padding: 11px;
+  }
+}
+
+
+/* Small Phones */
+@media (max-width: 480px) {
+
+  .apply {
+    padding: 18px 15px;
+  }
+
+  .apply h2 {
+    font-size: 20px;
+  }
+
+  .requirements {
+    padding: 10px;
+  }
+
+  .requirements ul {
+    font-size: 12px;
+  }
+}

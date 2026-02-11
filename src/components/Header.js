@@ -7,7 +7,6 @@ function Header({ user }) {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
-
   return (
     <header className="header">
 
@@ -61,11 +60,6 @@ function Header({ user }) {
         {/* LOGGED IN */}
         {user && (
           <>
-            {/* Greeting */}
-            <span className="user-greeting">
-              Hi, {user.name || "User"} 👋
-            </span>
-
             <Link to="/profile" onClick={() => setMenuOpen(false)}>
               Profile
             </Link>

@@ -258,3 +258,30 @@ nav a:active {
   font-weight: 600;
   margin-right: 10px;
 }
+/* =====================================
+   MOBILE FIX FOR HEADER + HOME
+===================================== */
+
+@media (max-width: 768px) {
+
+  /* Prevent overlap with hero section */
+  .header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Better mobile spacing */
+  .logo {
+    font-size: 20px;
+  }
+
+  /* Smooth dropdown animation */
+  .nav-links {
+    transition: all 0.3s ease-in-out;
+  }
+
+  .nav-links a {
+    font-size: 15px;
+  }
+}

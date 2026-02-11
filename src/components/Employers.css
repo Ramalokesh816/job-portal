@@ -279,3 +279,68 @@
   color: red;
   font-weight: 600;
 }
+/* =====================================
+   EMPLOYERS PAGE - MOBILE OPTIMIZATION
+===================================== */
+
+/* Tablets */
+@media (max-width: 992px) {
+
+  .page {
+    padding: 30px 30px;
+  }
+
+  .employer-grid {
+    gap: 20px;
+  }
+
+  .employer-card h3 {
+    font-size: 17px;
+  }
+}
+
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+
+  .employer-grid {
+    grid-template-columns: 1fr; /* One card per row */
+  }
+
+  .employer-card {
+    padding: 22px 18px;
+  }
+
+  .employer-card button {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .sub-text {
+    font-size: 14px;
+    padding: 0 5px;
+  }
+}
+
+
+/* Small Phones */
+@media (max-width: 480px) {
+
+  .page h2 {
+    font-size: 22px;
+  }
+
+  .employer-card h3 {
+    font-size: 16px;
+  }
+
+  .location,
+  .count {
+    font-size: 13px;
+  }
+
+  .employer-card img {
+    width: 65px;
+    height: 65px;
+  }
+}

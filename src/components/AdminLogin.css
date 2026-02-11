@@ -286,3 +286,87 @@
     grid-template-columns: 1fr;
   }
 }
+/* =====================================
+   ADMIN LOGIN & DASHBOARD - MOBILE FIX
+===================================== */
+
+/* Tablets */
+@media (max-width: 992px) {
+
+  .admin-page {
+    padding: 30px 25px;
+  }
+
+  .admin-page form {
+    max-width: 90%;
+  }
+
+  .box h3 {
+    font-size: 26px;
+  }
+}
+
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+
+  .admin-page {
+    padding: 25px 15px;
+  }
+
+  /* Login Form */
+  .admin-page form {
+    width: 100%;
+    max-width: 100%;
+    padding: 25px 20px;
+  }
+
+  /* Dashboard */
+  .dashboard-grid {
+    gap: 18px;
+  }
+
+  /* Company List */
+  .company-row {
+    max-width: 100%;
+    padding: 12px 10px;
+  }
+
+  .company-row span {
+    font-size: 13px;
+  }
+
+  /* Buttons */
+  .admin-page button {
+    width: 100%;
+    padding: 11px;
+  }
+
+  .del {
+    width: auto;
+  }
+}
+
+
+/* Small Phones */
+@media (max-width: 480px) {
+
+  .admin-page h2 {
+    font-size: 22px;
+  }
+
+  .box h3 {
+    font-size: 22px;
+  }
+
+  .box p {
+    font-size: 13px;
+  }
+
+  /* Stack company row */
+  .company-row {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}

@@ -227,3 +227,67 @@
     font-size: 26px;
   }
 }
+/* =====================================
+   MOBILE FRIENDLY ENHANCEMENTS
+===================================== */
+
+/* Tablets */
+@media (max-width: 992px) {
+
+  .page {
+    padding: 30px 30px;
+  }
+
+  .job-list {
+    gap: 20px;
+  }
+
+  .job-card h3 {
+    font-size: 18px;
+  }
+}
+
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+
+  .job-list {
+    grid-template-columns: 1fr; /* One card per row */
+  }
+
+  .job-card {
+    padding: 22px 18px;
+  }
+
+  .job-card button {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .back-btn {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+
+/* Small Phones */
+@media (max-width: 480px) {
+
+  .page h2 {
+    font-size: 22px;
+  }
+
+  .job-card h3 {
+    font-size: 16px;
+  }
+
+  .company,
+  .location {
+    font-size: 13px;
+  }
+
+  .job-card {
+    border-radius: 10px;
+  }
+}

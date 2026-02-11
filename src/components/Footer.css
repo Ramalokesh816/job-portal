@@ -53,3 +53,43 @@
     opacity: 1;
   }
 }
+/* =====================================
+   FOOTER - MOBILE RESPONSIVE
+===================================== */
+
+/* Tablets */
+@media (max-width: 992px) {
+
+  .footer {
+    font-size: 13px;
+    padding: 16px 0;
+  }
+}
+
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+
+  .footer {
+    font-size: 12px;
+    padding: 14px 10px;
+  }
+
+  .footer p {
+    line-height: 1.5;
+  }
+}
+
+
+/* Small Phones */
+@media (max-width: 480px) {
+
+  .footer {
+    font-size: 11px;
+    padding: 12px 8px;
+  }
+
+  .footer p {
+    letter-spacing: 0.3px;
+  }
+}

@@ -245,3 +245,93 @@ body {
   font-size: 14px;
   color: #555;
 }
+/* =====================================
+   MOBILE RESPONSIVE DESIGN
+===================================== */
+
+/* Tablets & Small Screens */
+@media (max-width: 992px) {
+  .hero {
+    padding: 50px 40px;
+  }
+
+  .hero h1 {
+    font-size: 34px;
+  }
+
+  .hero img {
+    width: 320px;
+  }
+
+  .cards {
+    gap: 20px;
+    padding: 50px 25px;
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+  /* HERO SECTION */
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+  }
+
+  .hero p {
+    font-size: 15px;
+    max-width: 100%;
+  }
+
+  .hero img {
+    width: 260px;
+    margin-top: 25px;
+  }
+
+  /* BUTTONS */
+  .hero div > div {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .btn {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  /* CARDS SECTION */
+  .cards {
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* Small Phones */
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 24px;
+  }
+
+  .hero p {
+    font-size: 14px;
+  }
+
+  .hero img {
+    width: 220px;
+  }
+
+  .card {
+    padding: 25px 18px;
+  }
+}

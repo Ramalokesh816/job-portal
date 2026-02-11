@@ -428,3 +428,107 @@
     padding: 25px 20px;
   }
 }
+/* =====================================
+   PROFILE PAGE - MOBILE OPTIMIZATION
+===================================== */
+
+/* Tablets */
+@media (max-width: 992px) {
+
+  .profile-content h2 {
+    font-size: 24px;
+  }
+
+  .applications-grid {
+    gap: 20px;
+  }
+
+  .details-section {
+    max-width: 100%;
+  }
+}
+
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+
+  /* Make menu scroll-friendly */
+  .profile-menu {
+    padding: 15px 10px;
+  }
+
+  .profile-header {
+    display: none; /* Hide avatar section to save space */
+  }
+
+  .profile-menu ul {
+    gap: 6px;
+  }
+
+  .profile-menu li {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  /* Content */
+  .profile-content {
+    padding: 20px 15px;
+  }
+
+  .profile-content h2 {
+    font-size: 22px;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  /* Cards */
+  .applications-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-card {
+    padding: 18px 15px;
+    font-size: 13px;
+  }
+
+  /* Details */
+  .details-section {
+    padding: 22px 18px;
+  }
+
+  .details-section input {
+    width: 100%;
+    margin-top: 5px;
+  }
+
+  /* Buttons */
+  .delete-btn,
+  .edit-btn,
+  .save-btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+
+
+/* Small Phones */
+@media (max-width: 480px) {
+
+  .profile-content h2 {
+    font-size: 20px;
+  }
+
+  .profile-menu li {
+    font-size: 12px;
+    padding: 7px 8px;
+  }
+
+  .app-card p {
+    font-size: 12px;
+  }
+
+  .details-section p {
+    font-size: 14px;
+  }
+}

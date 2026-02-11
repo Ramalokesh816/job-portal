@@ -325,3 +325,83 @@
     opacity: 1;
   }
 }
+/* =====================================
+   MOBILE RESPONSIVE - LOGIN PAGE
+===================================== */
+
+/* Tablets */
+@media (max-width: 992px) {
+
+  .login-box {
+    width: 90%;
+    height: auto;
+  }
+
+  .login-left,
+  .login-right {
+    padding: 40px 30px;
+  }
+}
+
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+
+  .login-box {
+    flex-direction: column;
+    width: 95%;
+    height: auto;
+    border-radius: 14px;
+  }
+
+  /* Hide right panel on mobile */
+  .login-right {
+    display: none;
+  }
+
+  .login-left {
+    width: 100%;
+    padding: 35px 25px;
+  }
+
+  .login-left h2 {
+    font-size: 26px;
+    text-align: center;
+  }
+
+  .login-left form {
+    width: 100%;
+  }
+
+  .login-left button {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  .social-login {
+    text-align: center;
+  }
+}
+
+
+/* Small Phones */
+@media (max-width: 480px) {
+
+  .login-left {
+    padding: 28px 18px;
+  }
+
+  .login-left h2 {
+    font-size: 22px;
+  }
+
+  .login-left input {
+    padding: 11px;
+    font-size: 13px;
+  }
+
+  .social-login button {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
