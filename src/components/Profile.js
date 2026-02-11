@@ -63,14 +63,14 @@ function Profile() {
         localStorage.getItem("user");
 
       if (!userData) {
-        navigate("/login");
+        navigate("/login", { replace: true });
         return;
       }
 
       const user = JSON.parse(userData);
 
       if (!user?.email) {
-        navigate("/login");
+        navigate("/login", { replace: true });
         return;
       }
 
@@ -84,7 +84,7 @@ function Profile() {
 
     } catch {
 
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
 
   }, [navigate]);
@@ -190,15 +190,13 @@ function Profile() {
   };
 
 
-  /* ================= LOGOUT (FIXED) ================= */
+  /* ================= LOGOUT ================= */
 
   const logout = () => {
 
-    // Remove login data
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
-    // Keep profile photo (optional)
     const photo =
       localStorage.getItem("profilePhoto");
 
@@ -208,10 +206,8 @@ function Profile() {
       localStorage.setItem("profilePhoto", photo);
     }
 
-    // Clear React state
     setStoredUser(null);
 
-    // Redirect
     navigate("/login", { replace: true });
   };
 
@@ -251,10 +247,11 @@ function Profile() {
   };
 
 
-  /* ================= LOADING ================= */
+  /* ================= FIXED LOADING ================= */
 
   if (!storedUser) {
-    return <p>Loading...</p>;
+    navigate("/login", { replace: true });
+    return null;
   }
 
 
