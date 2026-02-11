@@ -12,7 +12,7 @@ import PostJob from "./components/PostJob";
 import Apply from "./components/ApplyJob";
 import AdminLogin from "./components/AdminLogin";
 import AdminManageJobs from "./components/AdminManageJobs";
-import AdminManageEmployers from "./components/AdminManageEmployers";
+
 
 
 
@@ -63,7 +63,7 @@ function App() {
         <Route path="/employers" element={<Employers />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admin/jobs" element={<AdminManageJobs />} />
-        <Route path="/admin/employers" element={<AdminManageEmployers />} />
+        
 
 
 
