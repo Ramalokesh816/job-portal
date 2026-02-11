@@ -10,6 +10,11 @@ import Jobs from "./components/Jobs";
 import Employers from "./components/Employers";
 import PostJob from "./components/PostJob";
 import Apply from "./components/ApplyJob";
+import AdminLogin from "./components/AdminLogin";
+import AdminManageJobs from "./components/AdminManageJobs";
+import AdminManageEmployers from "./components/AdminManageEmployers";
+
+
 
 function App() {
 
@@ -56,6 +61,10 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/employers" element={<Employers />} />
+        <Route path="/adminlogin" element={<AdminLogin />} />
+        <Route path="/admin/jobs" element={<AdminManageJobs />} />
+        <Route path="/admin/employers" element={<AdminManageEmployers />} />
+
 
 
         {/* AUTH */}

@@ -1,20 +1,37 @@
 package com.jobportal.jobportal_backend.controller;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jobportal.jobportal_backend.model.Admin;
+import com.jobportal.jobportal_backend.model.Job;
 import com.jobportal.jobportal_backend.repository.AdminRepository;
+import com.jobportal.jobportal_backend.repository.JobRepository;
 
 @RestController
 @RequestMapping("/api/admin")
+@CrossOrigin(origins = "*")
 public class AdminController {
 
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
+
+
+    /* ================= ADMIN REGISTER ================= */
 
     @PostMapping("/register")
     public String register(@RequestBody Admin admin) {
@@ -31,6 +48,9 @@ public class AdminController {
         return "Admin registered successfully";
     }
 
+
+    /* ================= ADMIN LOGIN ================= */
+
     @PostMapping("/login")
     public String login(@RequestBody Admin admin) {
 
@@ -46,5 +66,34 @@ public class AdminController {
         }
 
         return "Login success";
+    }
+
+
+    /* ================= GET ALL JOBS ================= */
+
+    @GetMapping("/jobs")
+    public List<Job> getAllJobs() {
+
+        return jobRepository.findAll();
+    }
+
+
+    /* ================= DELETE JOB ================= */
+
+    @DeleteMapping("/jobs/{id}")
+    public ResponseEntity<?> deleteJob(@PathVariable String id) {
+
+        Optional<Job> job =
+                jobRepository.findById(id);
+
+        if (job.isEmpty()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Job not found ❌");
+        }
+
+        jobRepository.deleteById(id);
+
+        return ResponseEntity.ok("Job deleted ✅");
     }
 }

@@ -88,8 +88,7 @@ public class ApplicationController {
 
             /* ===== SAVE FILE ===== */
 
-            String original =
-                    resume.getOriginalFilename();
+            String original = resume.getOriginalFilename();
 
             String fileName =
                     System.currentTimeMillis() + "_" +
@@ -123,8 +122,7 @@ public class ApplicationController {
 
             String token = UUID.randomUUID().toString();
 
-            EmailVerificationToken verify =
-                    new EmailVerificationToken();
+            EmailVerificationToken verify = new EmailVerificationToken();
 
             verify.setEmail(userEmail);
             verify.setToken(token);
@@ -134,7 +132,7 @@ public class ApplicationController {
             tokenRepository.save(verify);
 
 
-            /* ===== SEND EMAIL ===== */
+            /* ===== SEND VERIFY MAIL ===== */
 
             try {
 
@@ -143,8 +141,7 @@ public class ApplicationController {
                         "/api/applications/verify?token=" +
                         token;
 
-                emailService.sendVerificationMail(
-                        userEmail, link);
+                emailService.sendVerificationMail(userEmail, link);
 
                 log.info("Verification mail sent to {}", userEmail);
 
@@ -184,34 +181,31 @@ public class ApplicationController {
                     .body("Invalid link ❌");
         }
 
-        EmailVerificationToken verify =
-                optional.get();
+        EmailVerificationToken verify = optional.get();
 
         if (verify.isVerified()) {
 
-            return ResponseEntity.ok(
-                    "Already verified ✅"
-            );
+            return ResponseEntity.ok("Already verified ✅");
         }
 
 
         /* ===== UPDATE TOKEN ===== */
 
         verify.setVerified(true);
-
         tokenRepository.save(verify);
 
 
         /* ===== UPDATE APPLICATION ===== */
 
         List<Application> apps =
-                applicationRepository
-                        .findByUserEmail(
-                                verify.getEmail());
+                applicationRepository.findByUserEmail(
+                        verify.getEmail());
+
+        Application latest = null;
 
         if (!apps.isEmpty()) {
 
-            Application latest =
+            latest =
                     apps.stream()
                         .max(Comparator.comparing(
                                 Application::getAppliedAt))
@@ -226,14 +220,21 @@ public class ApplicationController {
 
         /* ===== THANK YOU MAIL ===== */
 
-        try {
+        if (latest != null) {
 
-            emailService.sendThankYouMail(
-                    verify.getEmail());
+            try {
 
-        } catch (Exception e) {
+                emailService.sendThankYouMail(
+                        verify.getEmail(),
+                        latest.getFullName(),
+                        latest.getJobTitle(),
+                        "JobConnect"
+                );
 
-            log.error("Thank you mail failed", e);
+            } catch (Exception e) {
+
+                log.error("Thank you mail failed", e);
+            }
         }
 
 
@@ -299,7 +300,11 @@ public class ApplicationController {
 
             emailService.sendStatusMail(
                     app.getUserEmail(),
-                    status);
+                    app.getFullName(),
+                    app.getJobTitle(),
+                    "JobConnect",
+                    status
+            );
 
         } catch (Exception e) {
 
@@ -337,9 +342,13 @@ public class ApplicationController {
 
             emailService.sendInterviewMail(
                     app.getUserEmail(),
+                    app.getFullName(),
+                    app.getJobTitle(),
+                    "JobConnect",
                     date,
                     time,
-                    location);
+                    location
+            );
 
         } catch (Exception e) {
 
@@ -375,7 +384,9 @@ public class ApplicationController {
 
             emailService.sendHRReplyMail(
                     app.getUserEmail(),
-                    message);
+                    app.getFullName(),
+                    message
+            );
 
         } catch (Exception e) {
 

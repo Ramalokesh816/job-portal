@@ -100,80 +100,117 @@ public class EmailService {
 
     // ================= THANK YOU =================
 
-    public void sendThankYouMail(String to) {
+    public void sendThankYouMail(String to, String name, String jobTitle, String company) {
 
-        String body = """
-                Dear Candidate,
+    String body = """
+            Dear %s,
 
-                Your application is confirmed.
+            Thank you for applying for the position of %s at %s.
 
-                We will contact you soon.
+            We have successfully received your application and our recruitment team is currently reviewing your profile.
 
-                Regards,
-                HR Team
-                """;
+            If your qualifications match our requirements, we will contact you for the next steps.
 
-        sendMail(to, "Application Confirmed", body);
-    }
+            In the meantime, feel free to explore more opportunities on JobConnect.
+
+            Best Wishes,
+            JobConnect Hiring Team
+            support@jobconnect.com
+            www.jobconnect.com
+            """.formatted(name, jobTitle, company);
+
+    sendMail(to, "Application Successfully Submitted – JobConnect", body);
+}
 
 
     // ================= STATUS =================
 
-    public void sendStatusMail(String to, String status) {
+    
+    public void sendStatusMail(String to, String name, String jobTitle, String company, String status) {
 
-        String body = """
-                Dear Candidate,
+    String body = """
+            Dear %s,
 
-                Application Status: %s
+            We would like to inform you that the status of your application for the position of %s at %s has been updated.
 
-                Regards,
-                HR Team
-                """.formatted(status);
+            Current Application Status: %s
 
-        sendMail(to, "Status Update", body);
-    }
+            Our recruitment team will keep you informed about further updates.
+
+            If you have any questions, feel free to contact us at support@jobconnect.com.
+
+            Thank you for choosing JobConnect.
+
+            Best Regards,
+            JobConnect Hiring Team
+            www.jobconnect.com
+            """.formatted(name, jobTitle, company, status);
+
+    sendMail(to, "Application Status Update – JobConnect", body);
+}
+
 
 
     // ================= INTERVIEW =================
 
     public void sendInterviewMail(
-            String to,
-            String date,
-            String time,
-            String location) {
+        String to,
+        String name,
+        String jobTitle,
+        String company,
+        String date,
+        String time,
+        String location) {
 
-        String body = """
-                Dear Candidate,
+    String body = """
+            Dear %s,
 
-                Interview Scheduled:
+            Congratulations! You have been shortlisted for the interview round for the position of %s at %s.
 
-                Date: %s
-                Time: %s
-                Location: %s
+            Below are the interview details:
 
-                Best of luck!
+            📅 Date: %s
+            ⏰ Time: %s
+            📍 Location / Mode: %s
 
-                HR Team
-                """.formatted(date, time, location);
+            Please make sure to join on time and keep your resume and necessary documents ready.
 
-        sendMail(to, "Interview Invitation", body);
-    }
+            If you are unable to attend, kindly inform us in advance.
+
+            We wish you all the best!
+
+            Best Regards,
+            JobConnect Hiring Team
+            support@jobconnect.com
+            www.jobconnect.com
+            """.formatted(name, jobTitle, company, date, time, location);
+
+    sendMail(to, "Interview Invitation – " + company, body);
+}
 
 
     // ================= HR REPLY =================
 
-    public void sendHRReplyMail(String to, String msg) {
+   public void sendHRReplyMail(String to, String name, String message) {
 
-        String body = """
-                Dear Candidate,
+    String body = """
+            Dear %s,
 
-                %s
+            Thank you for reaching out to us.
 
-                Regards,
-                HR Team
-                """.formatted(msg);
+            %s
 
-        sendMail(to, "HR Message", body);
-    }
+            If you have any further questions, feel free to reply to this email.
+
+            We appreciate your interest in JobConnect and wish you all the best.
+
+            Best Regards,
+            JobConnect HR Team
+            support@jobconnect.com
+            www.jobconnect.com
+            """.formatted(name, message);
+
+    sendMail(to, "Response from JobConnect HR Team", body);
+}
 
 }
