@@ -7,6 +7,7 @@ function Header({ user }) {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
+
   return (
     <header className="header">
 
@@ -38,9 +39,12 @@ function Header({ user }) {
           Employers
         </Link>
 
-        <Link to="/postjob" onClick={() => setMenuOpen(false)}>
-          Post Job
-        </Link>
+
+        {user && (
+          <Link to="/postjob" onClick={() => setMenuOpen(false)}>
+            Post Job
+          </Link>
+        )}
 
 
         {/* NOT LOGGED IN */}
@@ -59,11 +63,9 @@ function Header({ user }) {
 
         {/* LOGGED IN */}
         {user && (
-          <>
-            <Link to="/profile" onClick={() => setMenuOpen(false)}>
-              Profile
-            </Link>
-          </>
+          <Link to="/profile" onClick={() => setMenuOpen(false)}>
+            Profile
+          </Link>
         )}
 
       </nav>

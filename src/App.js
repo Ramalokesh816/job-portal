@@ -13,16 +13,34 @@ import Apply from "./components/ApplyJob";
 
 function App() {
 
-  const [user, setUser] = useState(null);
+  // Load user immediately
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
-  // Load user after refresh
+
+  // Sync with localStorage (login / logout / refresh)
   useEffect(() => {
 
-    const savedUser = localStorage.getItem("user");
+    const syncUser = () => {
 
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+      const savedUser = localStorage.getItem("user");
+
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      } else {
+        setUser(null);
+      }
+    };
+
+    syncUser();
+
+    window.addEventListener("storage", syncUser);
+
+    return () => {
+      window.removeEventListener("storage", syncUser);
+    };
 
   }, []);
 
@@ -30,7 +48,7 @@ function App() {
   return (
     <>
 
-      <Header user={user} setUser={setUser} />
+      <Header user={user} />
 
       <Routes>
 
@@ -39,40 +57,52 @@ function App() {
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/employers" element={<Employers />} />
 
+
         {/* AUTH */}
         <Route
           path="/login"
           element={
-            user ? <Navigate to="/profile" /> : <Login setUser={setUser} />
+            user
+              ? <Navigate to="/profile" replace />
+              : <Login setUser={setUser} />
           }
         />
 
         <Route
           path="/register"
           element={
-            user ? <Navigate to="/profile" /> : <Register />
+            user
+              ? <Navigate to="/profile" replace />
+              : <Register />
           }
         />
+
 
         {/* PROTECTED */}
         <Route
           path="/profile"
           element={
-            user ? <Profile /> : <Navigate to="/login" />
+            user
+              ? <Profile />
+              : <Navigate to="/login" replace />
           }
         />
 
         <Route
           path="/apply"
           element={
-            user ? <Apply /> : <Navigate to="/login" />
+            user
+              ? <Apply />
+              : <Navigate to="/login" replace />
           }
         />
 
         <Route
           path="/postjob"
           element={
-            user ? <PostJob /> : <Navigate to="/login" />
+            user
+              ? <PostJob />
+              : <Navigate to="/login" replace />
           }
         />
 
