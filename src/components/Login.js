@@ -8,7 +8,7 @@ import API from "../services/api";
 
 import "./Auth.css";
 
-function Login() {
+function Login({ setUser }) {
 
   const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ function Login() {
   const [password, setPassword] = useState("");
 
 
-  // ===== NORMAL LOGIN =====
+  // NORMAL LOGIN
   const submit = async (e) => {
 
     e.preventDefault();
@@ -28,23 +28,14 @@ function Login() {
         { email, password }
       );
 
-      console.log("LOGIN:", res.data);
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // Save token
-      localStorage.setItem(
-        "token",
-        res.data.token
-      );
-
-      // Save user
-      localStorage.setItem(
-        "user",
-        JSON.stringify(res.data.user)
-      );
+      // 🔥 IMPORTANT
+      setUser(res.data.user);
 
       alert("Login Successful ✅");
 
-      // Go to profile
       navigate("/profile");
 
     } catch (err) {
@@ -57,15 +48,12 @@ function Login() {
   };
 
 
-  // ===== GOOGLE LOGIN =====
+  // GOOGLE LOGIN
   const handleGoogleLogin = async () => {
 
     try {
 
-      const result = await signInWithPopup(
-        auth,
-        googleProvider
-      );
+      const result = await signInWithPopup(auth, googleProvider);
 
       const user = result.user;
 
@@ -78,21 +66,17 @@ function Login() {
         }
       );
 
-      localStorage.setItem(
-        "token",
-        res.data.token
-      );
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(res.data.user)
-      );
+      // 🔥 IMPORTANT
+      setUser(res.data.user);
 
       alert("Google Login Successful ✅");
 
       navigate("/profile");
 
-    } catch (err) {
+    } catch {
 
       alert("Google Login Failed ❌");
     }
@@ -115,9 +99,7 @@ function Login() {
               placeholder="Email"
               required
               value={email}
-              onChange={(e) =>
-                setEmail(e.target.value)
-              }
+              onChange={(e) => setEmail(e.target.value)}
             />
 
             <input
@@ -125,9 +107,7 @@ function Login() {
               placeholder="Password"
               required
               value={password}
-              onChange={(e) =>
-                setPassword(e.target.value)
-              }
+              onChange={(e) => setPassword(e.target.value)}
             />
 
             <button type="submit">
@@ -159,6 +139,7 @@ function Login() {
         </div>
 
       </div>
+
     </div>
   );
 }
