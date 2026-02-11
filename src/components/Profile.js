@@ -10,7 +10,8 @@ import API from "../services/api";
 
 import "./Profile.css";
 
-function Profile() {
+function Profile({ setUser }) {
+
 
   const navigate = useNavigate();
 
@@ -194,22 +195,16 @@ function Profile() {
 
   const logout = () => {
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+  // Clear storage
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
 
-    const photo =
-      localStorage.getItem("profilePhoto");
+  // Clear global auth
+  setUser(null);
 
-    localStorage.clear();
-
-    if (photo) {
-      localStorage.setItem("profilePhoto", photo);
-    }
-
-    setStoredUser(null);
-
-    navigate("/login", { replace: true });
-  };
+  // Redirect
+  navigate("/login", { replace: true });
+};
 
 
   /* ================= DELETE ================= */
@@ -247,12 +242,7 @@ function Profile() {
   };
 
 
-  /* ================= FIXED LOADING ================= */
-
-  if (!storedUser) {
-    navigate("/login", { replace: true });
-    return null;
-  }
+  
 
 
   return (
