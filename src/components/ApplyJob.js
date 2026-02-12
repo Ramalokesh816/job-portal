@@ -8,13 +8,12 @@ function Apply() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Get job from state or localStorage
   const job =
     location.state ||
     JSON.parse(localStorage.getItem("selectedJob"));
 
-  // Get logged-in user
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user =
+    JSON.parse(localStorage.getItem("user"));
 
   const [form, setForm] = useState({
     fullName: "",
@@ -26,14 +25,10 @@ function Apply() {
   const [loading, setLoading] = useState(false);
 
 
-  /* ================= NO JOB SELECTED ================= */
-
   if (!job || !job.title) {
     return <h2 style={{ textAlign: "center" }}>No Job Selected</h2>;
   }
 
-
-  /* ================= SUBMIT ================= */
 
   const submit = async (e) => {
 
