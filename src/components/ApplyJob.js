@@ -68,11 +68,13 @@ function Apply() {
 
     } catch (err) {
 
+      console.log(err);
+
       alert(
-        "Status: " + err.response?.status +
-        "\nMessage: " + err.response?.data +
-        "\nError: " + err.message
+        err.response?.data ||
+        "Error submitting application ❗ Please try again."
       );
+      
 
     } finally {
       setLoading(false);
