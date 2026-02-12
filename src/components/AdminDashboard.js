@@ -15,19 +15,15 @@ function AdminDashboard() {
 
   const [loading, setLoading] = useState(true);
 
-
   /* ================= CHECK ADMIN ================= */
 
   useEffect(() => {
-
     if (!localStorage.getItem("admin")) {
       navigate("/admin-login");
     }
-
   }, [navigate]);
 
-
-  /* ================= LOAD STATS SAFELY ================= */
+  /* ================= LOAD STATS ================= */
 
   useEffect(() => {
 
@@ -36,42 +32,29 @@ function AdminDashboard() {
       try {
 
         const results = await Promise.allSettled([
-
           API.get("/api/employers"),
           API.get("/api/jobs"),
           API.get("/api/applications")
-
         ]);
 
-        const companies =
-          results[0].status === "fulfilled"
-            ? results[0].value.data.length
-            : 0;
-
-        const jobs =
-          results[1].status === "fulfilled"
-            ? results[1].value.data.length
-            : 0;
-
-        const applications =
-          results[2].status === "fulfilled"
-            ? results[2].value.data.length
-            : 0;
-
         setStats({
-          companies,
-          jobs,
-          applications
+          companies: results[0].status === "fulfilled"
+            ? results[0].value.data.length
+            : 0,
+
+          jobs: results[1].status === "fulfilled"
+            ? results[1].value.data.length
+            : 0,
+
+          applications: results[2].status === "fulfilled"
+            ? results[2].value.data.length
+            : 0
         });
 
       } catch (err) {
-
         console.error("Dashboard Error:", err);
-
       } finally {
-
         setLoading(false);
-
       }
     };
 
@@ -79,8 +62,10 @@ function AdminDashboard() {
 
   }, []);
 
-
-  /* ================= LOADING ================= */
+  const logout = () => {
+    localStorage.removeItem("admin");
+    navigate("/admin-login");
+  };
 
   if (loading) {
     return (
@@ -90,14 +75,11 @@ function AdminDashboard() {
     );
   }
 
-
   return (
     <div className="admin-page">
 
       <h2>Admin Dashboard</h2>
 
-
-      {/* DASHBOARD BOXES */}
       <div className="dashboard-grid">
 
         <div className="box">
@@ -117,13 +99,33 @@ function AdminDashboard() {
 
       </div>
 
+      {/* ACTION BUTTONS */}
 
-      {/* MANAGE BUTTON */}
+      <div style={{ marginTop: "25px" }}>
+
+        <button
+          onClick={() => navigate("/manage-companies")}
+          style={{ marginRight: "15px" }}
+        >
+          Manage Companies
+        </button>
+
+        <button
+          onClick={() => navigate("/manage-jobs")}
+        >
+          Manage Jobs
+        </button>
+
+      </div>
+
       <button
-        style={{ marginTop: "15px" }}
-        onClick={() => navigate("/manage-companies")}
+        onClick={logout}
+        style={{
+          marginTop: "20px",
+          background: "#dc3545"
+        }}
       >
-        Manage Companies
+        Logout
       </button>
 
     </div>

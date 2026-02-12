@@ -5,9 +5,15 @@ import "./ApplyJob.css";
 
 function Apply() {
 
-  const { state: job } = useLocation();
+  const location = useLocation();
   const navigate = useNavigate();
 
+  // Get job from state or localStorage
+  const job =
+    location.state ||
+    JSON.parse(localStorage.getItem("selectedJob"));
+
+  // Get logged-in user
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [form, setForm] = useState({
@@ -59,15 +65,9 @@ function Apply() {
 
       const res = await API.post(
         "/api/applications",
-        data,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        }
+        data
       );
 
-      // Backend returns plain string
       alert(res.data || "Application submitted ✅ Please verify email");
 
       navigate("/profile");
@@ -98,7 +98,6 @@ function Apply() {
 
         <h2>Apply for {job.title}</h2>
 
-
         <input
           required
           placeholder="Full Name"
@@ -110,7 +109,6 @@ function Apply() {
             })
           }
         />
-
 
         <input
           required
@@ -124,7 +122,6 @@ function Apply() {
           }
         />
 
-
         <textarea
           required
           placeholder="Skills"
@@ -137,7 +134,6 @@ function Apply() {
           }
         />
 
-
         <input
           type="file"
           required
@@ -149,7 +145,6 @@ function Apply() {
             })
           }
         />
-
 
         <button disabled={loading}>
           {loading ? "Submitting..." : "Submit"}

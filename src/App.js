@@ -10,50 +10,27 @@ import Jobs from "./components/Jobs";
 import Employers from "./components/Employers";
 import PostJob from "./components/PostJob";
 import Apply from "./components/ApplyJob";
+
+/* ADMIN */
 import AdminLogin from "./components/AdminLogin";
+import AdminDashboard from "./components/AdminDashboard";
+import ManageCompanies from "./components/ManageCompanies";
 import AdminManageJobs from "./components/AdminManageJobs";
-
-
-
 
 function App() {
 
-  // Load user immediately
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState(null);
 
-
-  // Sync with localStorage (login / logout / refresh)
   useEffect(() => {
-
-    const syncUser = () => {
-
-      const savedUser = localStorage.getItem("user");
-
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-      } else {
-        setUser(null);
-      }
-    };
-
-    syncUser();
-
-    window.addEventListener("storage", syncUser);
-
-    return () => {
-      window.removeEventListener("storage", syncUser);
-    };
-
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
   }, []);
-
 
   return (
     <>
-
-      <Header user={user} />
+      <Header user={user} setUser={setUser} />
 
       <Routes>
 
@@ -61,62 +38,77 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/employers" element={<Employers />} />
-        <Route path="/adminlogin" element={<AdminLogin />} />
-        <Route path="/admin/jobs" element={<AdminManageJobs />} />
-        
 
-
-
-        {/* AUTH */}
+        {/* USER AUTH */}
         <Route
           path="/login"
           element={
-            user
-              ? <Navigate to="/profile" replace />
-              : <Login setUser={setUser} />
+            user ? <Navigate to="/profile" /> : <Login setUser={setUser} />
           }
         />
 
         <Route
           path="/register"
           element={
-            user
-              ? <Navigate to="/profile" replace />
-              : <Register />
+            user ? <Navigate to="/profile" /> : <Register />
           }
         />
 
-
-        {/* PROTECTED */}
+        {/* USER PROTECTED */}
         <Route
-  path="/profile"
-  element={
-    user ? <Profile setUser={setUser} /> : <Navigate to="/login" replace />
-  }
-/>
-
-        /
+          path="/profile"
+          element={
+            user ? <Profile /> : <Navigate to="/login" />
+          }
+        />
 
         <Route
           path="/apply"
           element={
-            user
-              ? <Apply />
-              : <Navigate to="/login" replace />
+            user ? <Apply /> : <Navigate to="/login" />
           }
         />
 
         <Route
           path="/postjob"
           element={
-            user
-              ? <PostJob />
-              : <Navigate to="/login" replace />
+            user ? <PostJob /> : <Navigate to="/login" />
           }
         />
 
-      </Routes>
+        {/* ================= ADMIN ROUTES ================= */}
 
+        <Route path="/admin-login" element={<AdminLogin />} />
+
+<Route
+  path="/admin-dashboard"
+  element={
+    localStorage.getItem("admin")
+      ? <AdminDashboard />
+      : <Navigate to="/admin-login" />
+  }
+/>
+
+<Route
+  path="/manage-companies"
+  element={
+    localStorage.getItem("admin")
+      ? <ManageCompanies />
+      : <Navigate to="/admin-login" />
+  }
+/>
+
+<Route
+  path="/manage-jobs"
+  element={
+    localStorage.getItem("admin")
+      ? <AdminManageJobs />
+      : <Navigate to="/admin-login" />
+  }
+/>
+
+
+      </Routes>
     </>
   );
 }

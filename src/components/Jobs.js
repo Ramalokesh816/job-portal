@@ -50,9 +50,19 @@ function Jobs() {
   }, [company]);
 
 
+  /* ================= APPLY CLICK ================= */
+
+  const handleApply = (job) => {
+
+    // 🔥 IMPORTANT FIX
+    localStorage.setItem("selectedJob", JSON.stringify(job));
+
+    navigate("/apply", { state: job });
+  };
+
+
   return (
     <div className="page">
-
 
       {/* PAGE TITLE */}
       <h2>
@@ -60,7 +70,6 @@ function Jobs() {
           ? `${company} Jobs`
           : "Available Jobs"}
       </h2>
-
 
       {/* BACK TO ALL JOBS */}
       {company && (
@@ -72,7 +81,6 @@ function Jobs() {
         </button>
       )}
 
-
       {/* LOADING */}
       {loading && (
         <p style={{ textAlign: "center" }}>
@@ -80,14 +88,12 @@ function Jobs() {
         </p>
       )}
 
-
       {/* NO JOBS */}
       {!loading && jobs.length === 0 && (
         <p style={{ textAlign: "center" }}>
           No jobs available
         </p>
       )}
-
 
       {/* JOB LIST */}
       {!loading && jobs.length > 0 && (
@@ -109,9 +115,7 @@ function Jobs() {
               </p>
 
               <button
-                onClick={() =>
-                  navigate("/apply", { state: job })
-                }
+                onClick={() => handleApply(job)}
               >
                 Apply
               </button>
