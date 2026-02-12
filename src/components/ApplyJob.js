@@ -66,16 +66,6 @@ function Apply() {
 
       navigate("/profile");
 
-    } catch (err) {
-
-      console.log(err);
-
-      alert(
-        err.response?.data ||
-        "Error submitting application ❗ Please try again."
-      );
-      
-
     } finally {
       setLoading(false);
     }
