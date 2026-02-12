@@ -69,14 +69,14 @@ function Apply() {
 
     } catch (err) {
 
-      console.log("Apply Error:", err.response?.data || err.message);
+  alert(
+    "Status: " + err.response?.status +
+    "\nMessage: " + err.response?.data +
+    "\nError: " + err.message
+  );
 
-      alert(
-        err.response?.data ||
-        "Application Failed ❌"
-      );
-
-    } finally {
+}
+ finally {
 
       setLoading(false);
     }
