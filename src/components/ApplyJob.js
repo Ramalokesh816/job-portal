@@ -20,7 +20,8 @@ function Apply() {
   const [loading, setLoading] = useState(false);
 
 
-  // No job selected
+  /* ================= NO JOB SELECTED ================= */
+
   if (!job || !job.title) {
     return <h2 style={{ textAlign: "center" }}>No Job Selected</h2>;
   }
@@ -39,7 +40,7 @@ function Apply() {
     }
 
     if (!form.resume) {
-      alert("Upload resume ❗");
+      alert("Please upload resume ❗");
       return;
     }
 
@@ -56,21 +57,29 @@ function Apply() {
       data.append("userEmail", user.email);
       data.append("resume", form.resume);
 
-
       const res = await API.post(
         "/api/applications",
-        data
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }
       );
 
-      alert(res.data?.message || "Applied Successfully ✅");
+      // Backend returns plain string
+      alert(res.data || "Application submitted ✅ Please verify email");
 
       navigate("/profile");
 
     } catch (err) {
 
-      console.log("Apply Error:", err);
+      console.log("Apply Error:", err.response?.data || err.message);
 
-      alert("Apply Failed ❌");
+      alert(
+        err.response?.data ||
+        "Application Failed ❌"
+      );
 
     } finally {
 
