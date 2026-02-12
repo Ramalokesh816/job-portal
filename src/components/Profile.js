@@ -195,16 +195,14 @@ function Profile({ setUser }) {
 
   const logout = () => {
 
-  // Clear storage
-  localStorage.removeItem("token");
   localStorage.removeItem("user");
+  localStorage.removeItem("token");
 
-  // Clear global auth
-  setUser(null);
+  setUser(null);   // 🔥 THIS IS THE FIX
 
-  // Redirect
-  navigate("/login", { replace: true });
+  navigate("/login");
 };
+
 
 
   /* ================= DELETE ================= */

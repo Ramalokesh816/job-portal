@@ -56,11 +56,12 @@ function App() {
 
         {/* USER PROTECTED */}
         <Route
-          path="/profile"
-          element={
-            user ? <Profile /> : <Navigate to="/login" />
-          }
-        />
+  path="/profile"
+  element={
+    user ? <Profile setUser={setUser} /> : <Navigate to="/login" />
+  }
+/>
+
 
         <Route
           path="/apply"
