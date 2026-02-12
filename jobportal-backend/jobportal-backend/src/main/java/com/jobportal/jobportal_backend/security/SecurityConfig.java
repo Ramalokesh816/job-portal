@@ -19,56 +19,44 @@ public class SecurityConfig {
             throws Exception {
 
         http
-
-            // Enable CORS
             .cors(cors -> cors.configurationSource(corsSource()))
-
-            // Disable CSRF
             .csrf(csrf -> csrf.disable())
-
-            // Disable Session (Stateless)
             .sessionManagement(session ->
                 session.sessionCreationPolicy(
                     SessionCreationPolicy.STATELESS
                 )
             )
-
-            // Allow ALL requests (TEMP FIX)
             .authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll()
             )
-
-            // Disable default login
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable());
 
         return http.build();
     }
 
-
     // =========================
-    // CORS CONFIGURATION
+    // FIXED CORS CONFIGURATION
     // =========================
     @Bean
     public CorsConfigurationSource corsSource() {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // Your React URL
-        config.setAllowedOrigins(
-            List.of(
+        // Allow your frontend safely
+        config.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
                 "https://job-portal-5-cg3o.onrender.com"
-            )
-        );
+        ));
 
         config.setAllowedMethods(
-            List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
         );
 
         config.setAllowedHeaders(List.of("*"));
 
-        config.setAllowCredentials(true);
+        // 🔥 IMPORTANT FIX
+        config.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
