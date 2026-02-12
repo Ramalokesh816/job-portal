@@ -8,12 +8,13 @@ function Apply() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Get job from state or localStorage
   const job =
     location.state ||
-    JSON.parse(localStorage.getItem("selectedJob") || "null");
+    JSON.parse(localStorage.getItem("selectedJob"));
 
-  const user =
-    JSON.parse(localStorage.getItem("user") || "null");
+  // Get logged-in user
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const [form, setForm] = useState({
     fullName: "",
@@ -24,9 +25,15 @@ function Apply() {
 
   const [loading, setLoading] = useState(false);
 
+
+  /* ================= NO JOB SELECTED ================= */
+
   if (!job || !job.title) {
     return <h2 style={{ textAlign: "center" }}>No Job Selected</h2>;
   }
+
+
+  /* ================= SUBMIT ================= */
 
   const submit = async (e) => {
 
@@ -58,22 +65,36 @@ function Apply() {
 
       const res = await API.post(
         "/api/applications",
-        data,
-      
+        data
       );
 
       alert(res.data || "Application submitted ✅ Please verify email");
 
       navigate("/profile");
 
+    } catch (err) {
+
+      console.log("Apply Error:", err.response?.data || err.message);
+
+      alert(
+        err.response?.data ||
+        "Application Failed ❌"
+      );
+
     } finally {
+
       setLoading(false);
     }
   };
 
+
   return (
     <div className="apply-container">
-      <form className="apply" onSubmit={submit}>
+
+      <form
+        className="apply"
+        onSubmit={submit}
+      >
 
         <h2>Apply for {job.title}</h2>
 
@@ -82,7 +103,10 @@ function Apply() {
           placeholder="Full Name"
           value={form.fullName}
           onChange={(e) =>
-            setForm({ ...form, fullName: e.target.value })
+            setForm({
+              ...form,
+              fullName: e.target.value
+            })
           }
         />
 
@@ -91,7 +115,10 @@ function Apply() {
           placeholder="Experience"
           value={form.experience}
           onChange={(e) =>
-            setForm({ ...form, experience: e.target.value })
+            setForm({
+              ...form,
+              experience: e.target.value
+            })
           }
         />
 
@@ -100,7 +127,10 @@ function Apply() {
           placeholder="Skills"
           value={form.skills}
           onChange={(e) =>
-            setForm({ ...form, skills: e.target.value })
+            setForm({
+              ...form,
+              skills: e.target.value
+            })
           }
         />
 
@@ -109,7 +139,10 @@ function Apply() {
           required
           accept=".pdf,.doc,.docx"
           onChange={(e) =>
-            setForm({ ...form, resume: e.target.files[0] })
+            setForm({
+              ...form,
+              resume: e.target.files[0]
+            })
           }
         />
 
@@ -118,6 +151,7 @@ function Apply() {
         </button>
 
       </form>
+
     </div>
   );
 }
