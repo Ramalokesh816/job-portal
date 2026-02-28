@@ -19,13 +19,25 @@ import AdminManageJobs from "./components/AdminManageJobs";
 
 function App() {
 
+  /* ================= USER STATE ================= */
   const [user, setUser] = useState(null);
 
+  /* ================= ADMIN STATE (FIX) ================= */
+  const [admin, setAdmin] = useState(
+    localStorage.getItem("admin")
+  );
+
+  /* LOAD USER FROM STORAGE */
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
+  }, []);
+
+  /* LOAD ADMIN FROM STORAGE */
+  useEffect(() => {
+    setAdmin(localStorage.getItem("admin"));
   }, []);
 
   return (
@@ -34,12 +46,12 @@ function App() {
 
       <Routes>
 
-        {/* PUBLIC */}
+        {/* ================= PUBLIC ================= */}
         <Route path="/" element={<Home />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/employers" element={<Employers />} />
 
-        {/* USER AUTH */}
+        {/* ================= USER AUTH ================= */}
         <Route
           path="/login"
           element={
@@ -54,14 +66,13 @@ function App() {
           }
         />
 
-        {/* USER PROTECTED */}
+        {/* ================= USER PROTECTED ================= */}
         <Route
-  path="/profile"
-  element={
-    user ? <Profile setUser={setUser} /> : <Navigate to="/login" />
-  }
-/>
-
+          path="/profile"
+          element={
+            user ? <Profile setUser={setUser} /> : <Navigate to="/login" />
+          }
+        />
 
         <Route
           path="/apply"
@@ -77,37 +88,29 @@ function App() {
           }
         />
 
-        {/* ================= ADMIN ROUTES ================= */}
-
+        {/* ================= ADMIN ROUTES (FIXED) ================= */}
         <Route path="/admin-login" element={<AdminLogin />} />
 
-<Route
-  path="/admin-dashboard"
-  element={
-    localStorage.getItem("admin")
-      ? <AdminDashboard />
-      : <Navigate to="/admin-login" />
-  }
-/>
+        <Route
+          path="/admin-dashboard"
+          element={
+            admin ? <AdminDashboard /> : <Navigate to="/admin-login" />
+          }
+        />
 
-<Route
-  path="/manage-companies"
-  element={
-    localStorage.getItem("admin")
-      ? <ManageCompanies />
-      : <Navigate to="/admin-login" />
-  }
-/>
+        <Route
+          path="/manage-companies"
+          element={
+            admin ? <ManageCompanies /> : <Navigate to="/admin-login" />
+          }
+        />
 
-<Route
-  path="/manage-jobs"
-  element={
-    localStorage.getItem("admin")
-      ? <AdminManageJobs />
-      : <Navigate to="/admin-login" />
-  }
-/>
-
+        <Route
+          path="/manage-jobs"
+          element={
+            admin ? <AdminManageJobs /> : <Navigate to="/admin-login" />
+          }
+        />
 
       </Routes>
     </>
